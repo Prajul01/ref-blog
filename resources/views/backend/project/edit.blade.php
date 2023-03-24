@@ -85,7 +85,7 @@
                     <div class="col-sm-10" style="float: right">
 
                         <table class="table table-striped table-bordered" id="link_wrapper">
-
+                            <h2>links</h2>
                             <tr>
                                 <th>URL</th>
                                 <th>Playstore</th>
@@ -96,8 +96,12 @@
                                 @foreach(unserialize($data['row']->links) as $link)
                                     <td><input type="text" name="links[]" class="form-control" value="{{$link}}"></td>
                                 @endforeach
-                       <table class="table table-striped table-bordered" id="image_wrapper">--}}
-                            {{--                        <h2>contributors</h2>--}}
+                            </tr>
+                        </table>
+                    </div>
+                       <table class="table table-striped table-bordered" id="image_wrapper">
+
+{{--                                                    <h2>contributors</h2>--}}
                             <tr>
                                 <th>Name</th>
                                 <th>Facebook</th>
@@ -106,6 +110,20 @@
                                 {{--                            <th>Action</th>--}}
                             </tr>
                             <tr>
+                                @foreach(json_decode($data['row']->contributors) as $contributor)
+                                    <td>
+                                        @for ($i = 0; $i < count($contributor->name); $i++)
+                                        <td><input type="text" name="contributor_name[]" class="form-control" value="{{$contributor->name[$i]}}"/></td>
+                                        <td><input type="text" name="contributor_facebook[]" class="form-control"/></td>
+                                        <td><input type="text" name="contributor_linkedin[]" class="form-control"/></td>
+{{--                                            <p>Name: {{ $contributor->name[$i] }}</p>--}}
+                                            <p>Facebook: {{ $contributor->facebook[$i] }}</p>
+                                            <p>LinkedIn: {{ $contributor->linkedin[$i] }}</p>
+                                            <hr>
+                                        @endfor
+
+                                    </td>
+                                @endforeach
                                 <td><input type="text" name="contributor_name[]" class="form-control"/></td>
                                 <td><input type="text" name="contributor_facebook[]" class="form-control"/></td>
                                 <td><input type="text" name="contributor_linkedin[]" class="form-control"/></td>
