@@ -3,21 +3,18 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
-use App\Models\Client;
+use App\Models\Comment;
 use Illuminate\Http\Request;
 
-class ClientController extends Controller
+class CommentController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
-        $client = Client::all();
+        $comment = Comment::with('blog')->get();
         return response()->json([
             "success" => true,
-            "message" => "Clients   List",
-            "data" => $client
+            "message" => "Comments   List",
+            "data" => $comment
         ], 201);
     }
 
@@ -35,40 +32,30 @@ class ClientController extends Controller
     public function store(Request $request)
     {
         $data['row'] = $request->all();
-        if ($data['row']) {
-            $imageFiles = $request->file('image_file');
-            $attribute_value = $request->input('name');
-            for ($i = 0; $i < count($imageFiles); $i++) {
-                $image = $imageFiles[$i];
-                $image_name = rand(6785, 9814) . '_' . $image->getClientOriginalName();
-                $image->move(public_path('uploads/images/clients/'), $image_name);
-                $imageArray['image'] = $image_name;
-                $imageArray['name'] = $attribute_value[$i];
-                Client::create($imageArray);
-            }
+        $data['row']=Comment::create($request->all());
             if ($data['row']) {
                 $resp['success'] = true;
-                $resp['message'] = 'Client saved successfully ';
+                $resp['message'] = 'Comment saved successfully ';
                 $resp['data']=$data['row'];
 //                $resp['id']=$data['row']->id;
             } else {
                 $resp = [
                     'success' => false,
-                    'message' => 'Client Couldnot be Saved'
+                    'message' => 'Comment Couldnot be Saved'
                 ];
             }
             return response()->json($resp);
 
         }
 
-    }
+
 
     /**
      * Display the specified resource.
      */
     public function show(string $id)
     {
-        $Client = Client::findOrFail($id);
+        $Client = Comment::with('blog')->findOrFail($id);
         $response = $Client;
         return response()->json(["data" => $response]);
     }
@@ -78,7 +65,7 @@ class ClientController extends Controller
      */
     public function edit(string $id)
     {
-        $Client = Client::findOrFail($id);
+        $Client = Comment::with('blog')->findOrFail($id);
         $response = $Client;
         return response()->json(["data" => $response]);
     }
@@ -88,32 +75,25 @@ class ClientController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $delete = Client::where('id', $id)->pluck('image');
-        unlink(public_path('uploads\images\clients/'.$delete[0]));
-        $file = $request->file('image_file');
-        if ($request->hasFile("image_file")) {
-            $fileName = time() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('uploads/images/clients/'), $fileName);
-            $request->request->add(['image' => $fileName]);
-        }
 
 
-        $data['row'] =Client::findOrFail($id);
+
+        $data['row'] =Comment::findOrFail($id);
         if(!$data ['row']){
             $resp = [
                 'success' => false,
-                'message' => 'Client Could not be updated'
+                'message' => 'Comments not found'
             ];
         }
         if ($data['row']->update($request->all())) {
             $resp['success'] = true;
-            $resp['message'] = 'Client Updated  successfully ';
+            $resp['message'] = 'Comments Updated  successfully ';
             $resp['data']=$data['row'];
 //                $resp['id']=$data['row']->id;
         } else {
             $resp = [
                 'success' => false,
-                'message' => 'Client Could not be updated'
+                'message' => 'Comments Could not be updated'
             ];
         }
         return response()->json($resp);
@@ -124,16 +104,14 @@ class ClientController extends Controller
      */
     public function destroy(string $id)
     {
-        $delete = Client::where('id', $id)->pluck('image');
 
-        unlink(public_path('uploads\images\clients/'.$delete[0]));
 
-        $Clinet = Client::find($id);
+        $Clinet = Comment::find($id);
 
         $Clinet->delete();
         return response()->json([
             "success" => true,
-            "message" => "Clinet   Deleted",
+            "message" => "Comment   Deleted",
             "data" => $Clinet
         ]);
     }

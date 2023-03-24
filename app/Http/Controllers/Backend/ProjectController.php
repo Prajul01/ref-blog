@@ -53,7 +53,6 @@ class ProjectController extends BackendBaseController
     $model->description = $request->input('description');
     $model->excerpt = $request->input('excerpt');
     $model->thumbnail = $request->input('thumbnail');
-
         $contributors = [
             [
                 'name' => $request->input('contributor_name'),
@@ -62,11 +61,8 @@ class ProjectController extends BackendBaseController
             ],
         ];
         $model->contributors = json_encode($contributors);
-
-
     // To store array data in database, you can use the `serialize()` function to convert the array into a string
-    $model->links = serialize($request->input('links'));
-
+    $model->links = json_encode($request->input('links'));
         $file = $request->file('image_file');
     if ($request->hasFile('image_file')) {
 
@@ -107,25 +103,34 @@ class ProjectController extends BackendBaseController
      */
     public function update(Request $request, string $id)
     {
-        $delete = $this->model->where('id', $id)->pluck('image');
-        unlink(public_path('uploads\images\project/'.$delete[0]));
+        $model = Project::find($id);
+// Update the record with the new values
+        $model->title = $request->input('title');
+        $model->description = $request->input('description');
+        $model->excerpt = $request->input('excerpt');
+        $model->thumbnail = $request->input('thumbnail');
+        $contributors = [
+            [
+                'name' => $request->input('contributor_name'),
+                'facebook' => $request->input('contributor_facebook'),
+                'linkedin' => $request->input('contributor_linkedin')
+            ],
+        ];
+        $model->contributors = json_encode($contributors);
+        $model->links = json_encode($request->input('links'));
+
         $file = $request->file('image_file');
-        if ($request->hasFile("image_file")) {
+        $delete = $this->model->where('id', $id)->pluck('image');
+
+        unlink(public_path('uploads\images\project/'.$delete[0]));
+        if ($request->hasFile('image_file')) {
             $fileName = time() . '_' . $file->getClientOriginalName();
             $file->move(public_path('uploads/images/project/'), $fileName);
             $request->request->add(['image' => $fileName]);
+            $model->image = $fileName;
         }
-        $data['row'] =$this->model->findOrFail($id);
-        if(!$data ['row']){
-            request()->session()->flash('error','Invalid Request');
-            return redirect()->route($this->__loadDataToView($this->route . 'index'));
-        }
-        if ($data['row']->update($request->all())) {
-            $request->session()->flash('success', $this->panel .' Update Successfully');
-        } else {
-            $request->session()->flash('error', $this->panel .' Update failed');
+        $model->save();
 
-        }
         return redirect()->route($this->__loadDataToView($this->route . 'index'));
     }
 

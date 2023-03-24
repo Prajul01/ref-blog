@@ -93,7 +93,7 @@
                                 {{--                            <th>Action</th>--}}
                             </tr>
                             <tr>
-                                @foreach(unserialize($data['row']->links) as $link)
+                                @foreach(json_decode($data['row']->links) as $link)
                                     <td><input type="text" name="links[]" class="form-control" value="{{$link}}"></td>
                                 @endforeach
                             </tr>
@@ -110,27 +110,24 @@
                                 {{--                            <th>Action</th>--}}
                             </tr>
                             <tr>
-                                @foreach(json_decode($data['row']->contributors) as $contributor)
-                                    <td>
-                                        @for ($i = 0; $i < count($contributor->name); $i++)
-                                        <td><input type="text" name="contributor_name[]" class="form-control" value="{{$contributor->name[$i]}}"/></td>
-                                        <td><input type="text" name="contributor_facebook[]" class="form-control"/></td>
-                                        <td><input type="text" name="contributor_linkedin[]" class="form-control"/></td>
-{{--                                            <p>Name: {{ $contributor->name[$i] }}</p>--}}
-                                            <p>Facebook: {{ $contributor->facebook[$i] }}</p>
-                                            <p>LinkedIn: {{ $contributor->linkedin[$i] }}</p>
-                                            <hr>
-                                        @endfor
+                           @foreach(json_decode($data['row']->contributors) as $contributor)
+                               @for($i = 0; $i < count($contributor->name); $i++)
+                                   <tr>
+                                       <td><input type="text" name="contributor_name[]" class="form-control" value="{{$contributor->name[$i]}}"></td>
+                                       <td><input type="text" name="contributor_facebook[]" value="{{$contributor->facebook[$i]}}" class="form-control"/></td>
+                                       <td><input type="text" name="contributor_linkedin[]" value="{{$contributor->linkedin[$i]}}" class="form-control"/></td>
+                                       <td>
+                                           @if($i == 0)
+                                               <button class="btn btn-info" type="button" id="addMoreImage"style="margin-bottom: 20px"> <i class="fa fa-plus"></i> Add</button>
 
-                                    </td>
-                                @endforeach
-                                <td><input type="text" name="contributor_name[]" class="form-control"/></td>
-                                <td><input type="text" name="contributor_facebook[]" class="form-control"/></td>
-                                <td><input type="text" name="contributor_linkedin[]" class="form-control"/></td>
-                                <td>
-                                    <button class="btn btn-info" type="button" id="addMoreImage"style="margin-bottom: 20px"> <i class="fa fa-plus"></i> Add</button>
+                                           @else
+                                               <a class="btn btn-block btn-warning sa-warning remove_row"> <i class="fa fa-trash"></i></a>
+                                           @endif
+                                       </td>
+                                   </tr>
+                                   @endfor
+                                   @endforeach
 
-                                </td>
 
                             </tr>
                         </table>

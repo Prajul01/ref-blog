@@ -6,6 +6,11 @@ use App\Http\Controllers\API\ClientController;
 use App\Http\Controllers\API\TeamMemberController;
 use App\Http\Controllers\API\BlogController;
 use App\Http\Controllers\API\CategoryController;
+use App\Http\Controllers\API\VirtualEmployeeController;
+use App\Http\Controllers\API\OutsourcingController;
+use App\Http\Controllers\API\ContactUSController;
+use App\Http\Controllers\API\CommentController;
+use App\Http\Controllers\API\ProjectController;
 
 /*
 |--------------------------------------------------------------------------
@@ -25,4 +30,8 @@ Route::resource('client',ClientController::class);
 Route::resource('category',CategoryController::class);
 Route::resource('team',TeamMemberController::class);
 Route::resource('blog',BlogController::class);
-Route::resource('project',\App\Http\Controllers\API\ProjectController::class);
+Route::resource('project',ProjectController::class);
+Route::resource('comment',CommentController::class);
+Route::resource('contact',ContactUSController::class);
+Route::resource('outsourcing',OutsourcingController::class);
+Route::resource('virtualEmployee',VirtualEmployeeController::class);

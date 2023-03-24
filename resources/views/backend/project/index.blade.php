@@ -66,7 +66,7 @@
                             </td>
                         @endforeach
                         <td>
-                            @foreach(unserialize($event->links) as $link)
+                            @foreach(json_decode($event->links) as $link)
                                 <li><a href="{{ $link }}" target="_blank">{{ $link }}</a></li>
                             @endforeach
                         </td>
