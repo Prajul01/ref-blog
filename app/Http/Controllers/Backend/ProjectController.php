@@ -3,18 +3,18 @@
 namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
-use App\Models\TeamMember;
+use App\Models\Project;
 use Illuminate\Http\Request;
 
-class TeamMemberController extends BackendBaseController
+class ProjectController extends BackendBaseController
 {
-    protected $route ='admin.team.';
-    protected $panel ='Team Member';
-    protected $view ='backend.teamMember.';
+    protected $route ='admin.project.';
+    protected $panel ='Project';
+    protected $view ='backend.project.';
     protected $title;
     protected $model;
     function __construct(){
-        $this->model = new TeamMember();
+        $this->model = new Project();
     }
     /**
      * Display a listing of the resource.
@@ -23,6 +23,13 @@ class TeamMemberController extends BackendBaseController
     {
         $this->title = 'List';
         $data['row'] = $this->model->all();
+//        foreach ($data['row'] as $cont) {
+//            $cont = unserialize($cont->contributors);
+//
+//        }
+//
+
+
         return view($this->__loadDataToView($this->view . 'index'),compact('data'));
     }
 
@@ -41,25 +48,40 @@ class TeamMemberController extends BackendBaseController
      */
     public function store(Request $request)
     {
-        $data['row'] = $request->all();
+    $model = new Project();
+    $model->title = $request->input('title');
+    $model->description = $request->input('description');
+    $model->excerpt = $request->input('excerpt');
+    $model->thumbnail = $request->input('thumbnail');
+
+        $contributors = [
+            [
+                'name' => $request->input('contributor_name'),
+                'facebook' => $request->input('contributor_facebook'),
+                'linkedin' => $request->input('contributor_linkedin')
+            ],
+        ];
+        $model->contributors = json_encode($contributors);
+
+
+    // To store array data in database, you can use the `serialize()` function to convert the array into a string
+    $model->links = serialize($request->input('links'));
+
         $file = $request->file('image_file');
-        if ($request->hasFile("image_file")) {
-            $fileName = time() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('uploads/images/team/'), $fileName);
-            $request->request->add(['image' => $fileName]);
+    if ($request->hasFile('image_file')) {
 
-        }
-        $data['row']=$this->model->create($request->all());
-            if ($data['row']) {
-                request()->session()->flash('success', $this->panel . 'Created Successfully');
-            } else {
-                request()->session()->flash('error', $this->panel . 'Creation Failed');
-            }
-            return redirect()->route($this->__loadDataToView($this->route . 'index'));
+        $fileName = time() . '_' . $file->getClientOriginalName();
 
-        }
+        $file->move(public_path('uploads/images/project/'), $fileName);
 
+         $request->request->add(['image' => $fileName]);
+        $model->image = $fileName;
 
+    }
+    $model->save();
+        return redirect()->route($this->__loadDataToView($this->route . 'index'));
+
+    }
     /**
      * Display the specified resource.
      */
@@ -85,12 +107,12 @@ class TeamMemberController extends BackendBaseController
      */
     public function update(Request $request, string $id)
     {
-        $delete = TeamMember::where('id', $id)->pluck('image');
-        unlink(public_path('uploads\images\team/'.$delete[0]));
+        $delete = $this->model->where('id', $id)->pluck('image');
+        unlink(public_path('uploads\images\project/'.$delete[0]));
         $file = $request->file('image_file');
         if ($request->hasFile("image_file")) {
             $fileName = time() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('uploads/images/team/'), $fileName);
+            $file->move(public_path('uploads/images/project/'), $fileName);
             $request->request->add(['image' => $fileName]);
         }
         $data['row'] =$this->model->findOrFail($id);
@@ -112,9 +134,9 @@ class TeamMemberController extends BackendBaseController
      */
     public function destroy(string $id)
     {
-        $delete = TeamMember::where('id', $id)->pluck('image');
+        $delete = $this->model->where('id', $id)->pluck('image');
 
-        unlink(public_path('uploads\images\team/'.$delete[0]));
+        unlink(public_path('uploads\images\project/'.$delete[0]));
 
         $this->model->findorfail($id)->delete();
         return redirect()->route($this->__loadDataToView($this->route . 'index'))->with('success',$this->panel .' Deleted Successfully');

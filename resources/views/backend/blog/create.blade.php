@@ -64,7 +64,7 @@
                     <div class="form-group row">
                         {!! Form::label('image_file', 'Image: <span class="required">*</span>',['class' => 'col-sm-2 col-form-label'],false); !!}
                         <div class="col-sm-10">
-                            {!! Form::file('image_file', null,['class' => 'form-control','placeholder' => 'Enter Github Link','id'=>'image_file','name'=>'image_file']) !!}
+                            {!! Form::file('image_file',['class' => 'form-control','placeholder' => 'Enter Github Link','id'=>'image_file','name'=>'image_file']) !!}
                             @error('image_file')
                             <span class="text text-danger">{{$message}}</span>
                             @enderror

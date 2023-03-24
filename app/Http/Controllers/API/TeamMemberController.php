@@ -1,29 +1,25 @@
 <?php
 
-namespace App\Http\Controllers\Backend;
+namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Models\Client;
 use App\Models\TeamMember;
 use Illuminate\Http\Request;
 
-class TeamMemberController extends BackendBaseController
+class TeamMemberController extends Controller
 {
-    protected $route ='admin.team.';
-    protected $panel ='Team Member';
-    protected $view ='backend.teamMember.';
-    protected $title;
-    protected $model;
-    function __construct(){
-        $this->model = new TeamMember();
-    }
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $this->title = 'List';
-        $data['row'] = $this->model->all();
-        return view($this->__loadDataToView($this->view . 'index'),compact('data'));
+        $client = TeamMember::all();
+        return response()->json([
+            "success" => true,
+            "message" => "Team   List",
+            "data" => $client
+        ]);
     }
 
     /**
@@ -31,9 +27,7 @@ class TeamMemberController extends BackendBaseController
      */
     public function create()
     {
-        $this->title = 'Create';
-
-        return view($this->__loadDataToView($this->view . 'create'));
+        //
     }
 
     /**
@@ -49,15 +43,22 @@ class TeamMemberController extends BackendBaseController
             $request->request->add(['image' => $fileName]);
 
         }
-        $data['row']=$this->model->create($request->all());
+        $data['row']=TeamMember::create($request->all());
             if ($data['row']) {
-                request()->session()->flash('success', $this->panel . 'Created Successfully');
+                $resp['success'] = true;
+                $resp['message'] = 'Team saved successfully ';
+                $resp['data']=$data['row'];
+//                $resp['id']=$data['row']->id;
             } else {
-                request()->session()->flash('error', $this->panel . 'Creation Failed');
+                $resp = [
+                    'success' => false,
+                    'message' => 'Team Could not be Saved'
+                ];
             }
-            return redirect()->route($this->__loadDataToView($this->route . 'index'));
+            return response()->json($resp);
 
         }
+
 
 
     /**
@@ -65,19 +66,19 @@ class TeamMemberController extends BackendBaseController
      */
     public function show(string $id)
     {
-        $this->title= 'View';
-        $data['row']=$this->model->findOrFail($id);
-        return view($this->__loadDataToView($this->view . 'view'),compact('data'));
+        $Client = TeamMember::findOrFail($id);
+        $response = $Client;
+        return response()->json(["data" => $response]);
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit($id)
-    {   $this->title= 'Edit';
-        $data['row']=$this->model->findOrFail($id);
-//        dd($data['row']);
-        return view($this->__loadDataToView($this->view . 'edit'),compact('data'));
+    public function edit(string $id)
+    {
+        $Client = TeamMember::findOrFail($id);
+        $response = $Client;
+        return response()->json(["data" => $response]);
     }
 
     /**
@@ -93,18 +94,27 @@ class TeamMemberController extends BackendBaseController
             $file->move(public_path('uploads/images/team/'), $fileName);
             $request->request->add(['image' => $fileName]);
         }
-        $data['row'] =$this->model->findOrFail($id);
+
+
+        $data['row'] =TeamMember::findOrFail($id);
         if(!$data ['row']){
-            request()->session()->flash('error','Invalid Request');
-            return redirect()->route($this->__loadDataToView($this->route . 'index'));
+            $resp = [
+                'success' => false,
+                'message' => 'Team Could not be updated'
+            ];
         }
         if ($data['row']->update($request->all())) {
-            $request->session()->flash('success', $this->panel .' Update Successfully');
+            $resp['success'] = true;
+            $resp['message'] = 'Team Updated  successfully ';
+            $resp['data']=$data['row'];
+//                $resp['id']=$data['row']->id;
         } else {
-            $request->session()->flash('error', $this->panel .' Update failed');
-
+            $resp = [
+                'success' => false,
+                'message' => 'Team Could not be updated'
+            ];
         }
-        return redirect()->route($this->__loadDataToView($this->route . 'index'));
+        return response()->json($resp);
     }
 
     /**
@@ -116,7 +126,13 @@ class TeamMemberController extends BackendBaseController
 
         unlink(public_path('uploads\images\team/'.$delete[0]));
 
-        $this->model->findorfail($id)->delete();
-        return redirect()->route($this->__loadDataToView($this->route . 'index'))->with('success',$this->panel .' Deleted Successfully');
+        $Clinet = TeamMember::find($id);
+
+        $Clinet->delete();
+        return response()->json([
+            "success" => true,
+            "message" => "Team  Deleted",
+            "data" => $Clinet
+        ]);
     }
 }

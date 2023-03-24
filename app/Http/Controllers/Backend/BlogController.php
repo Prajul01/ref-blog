@@ -45,7 +45,7 @@ class BlogController extends BackendBaseController
      */
     public function store(Request $request)
     {
-//        dd($request->all());
+
         $data['row'] = $request->all();
         $file = $request->file('image_file');
         if ($request->hasFile("image_file")) {
@@ -81,6 +81,7 @@ class BlogController extends BackendBaseController
     public function edit($id)
     {   $this->title= 'Edit';
         $data['row']=$this->model->findOrFail($id);
+        $data['category']=Category::pluck('name','id');
 //        dd($data['row']);
         return view($this->__loadDataToView($this->view . 'edit'),compact('data'));
     }
@@ -90,14 +91,21 @@ class BlogController extends BackendBaseController
      */
     public function update(Request $request, string $id)
     {
-//        $delete = TeamMember::where('id', $id)->pluck('image');
-//        unlink(public_path('uploads\images\team/'.$delete[0]));
-//        $file = $request->file('image_file');
-//        if ($request->hasFile("image_file")) {
-//            $fileName = time() . '_' . $file->getClientOriginalName();
-//            $file->move(public_path('uploads/images/team/'), $fileName);
-//            $request->request->add(['image' => $fileName]);
-//        }
+        $delete = Blog::where('id', $id)->pluck('image');
+
+        unlink(public_path('uploads\images\blog/'.$delete[0]));
+        $data['row'] = $request->all();
+        $file = $request->file('image_file');
+        if ($request->hasFile("image_file")) {
+            $fileName = time() . '_' . $file->getClientOriginalName();
+            $file->move(public_path('uploads/images/blog/'), $fileName);
+            $request->request->add(['image' => $fileName]);
+
+        }
+//        dd($request->all());
+
+
+
         $data['row'] =$this->model->findOrFail($id);
         if(!$data ['row']){
             request()->session()->flash('error','Invalid Request');
@@ -117,9 +125,9 @@ class BlogController extends BackendBaseController
      */
     public function destroy(string $id)
     {
-//        $delete = TeamMember::where('id', $id)->pluck('image');
-//
-//        unlink(public_path('uploads\images\team/'.$delete[0]));
+        $delete = Blog::where('id', $id)->pluck('image');
+
+        unlink(public_path('uploads\images\blog/'.$delete[0]));
 
         $this->model->findorfail($id)->delete();
         return redirect()->route($this->__loadDataToView($this->route . 'index'))->with('success',$this->panel .' Deleted Successfully');

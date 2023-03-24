@@ -3,19 +3,20 @@
 namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
-use App\Models\TeamMember;
+use App\Models\Service;
 use Illuminate\Http\Request;
 
-class TeamMemberController extends BackendBaseController
+class ServicesController extends BackendBaseController
 {
-    protected $route ='admin.team.';
-    protected $panel ='Team Member';
-    protected $view ='backend.teamMember.';
+    protected $route ='admin.services.';
+    protected $panel ='Services';
+    protected $view ='backend.services.';
     protected $title;
     protected $model;
     function __construct(){
-        $this->model = new TeamMember();
+        $this->model = new Service();
     }
+
     /**
      * Display a listing of the resource.
      */
@@ -31,6 +32,7 @@ class TeamMemberController extends BackendBaseController
      */
     public function create()
     {
+
         $this->title = 'Create';
 
         return view($this->__loadDataToView($this->view . 'create'));
@@ -41,22 +43,21 @@ class TeamMemberController extends BackendBaseController
      */
     public function store(Request $request)
     {
-        $data['row'] = $request->all();
-        $file = $request->file('image_file');
-        if ($request->hasFile("image_file")) {
-            $fileName = time() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('uploads/images/team/'), $fileName);
-            $request->request->add(['image' => $fileName]);
 
-        }
-        $data['row']=$this->model->create($request->all());
+        $data['row'] = $request->all();
+        if ($data['row']) {
+
+//            $attribute_value = $request->input('name');
+//            for ($i = 0; $i < count($attribute_value); $i++) {
+//                $attributeArray['name'] = $attribute_value[$i];
+                Service::create($request->all());
+            }
             if ($data['row']) {
                 request()->session()->flash('success', $this->panel . 'Created Successfully');
             } else {
                 request()->session()->flash('error', $this->panel . 'Creation Failed');
             }
             return redirect()->route($this->__loadDataToView($this->route . 'index'));
-
         }
 
 
@@ -76,7 +77,8 @@ class TeamMemberController extends BackendBaseController
     public function edit($id)
     {   $this->title= 'Edit';
         $data['row']=$this->model->findOrFail($id);
-//        dd($data['row']);
+
+
         return view($this->__loadDataToView($this->view . 'edit'),compact('data'));
     }
 
@@ -85,14 +87,6 @@ class TeamMemberController extends BackendBaseController
      */
     public function update(Request $request, string $id)
     {
-        $delete = TeamMember::where('id', $id)->pluck('image');
-        unlink(public_path('uploads\images\team/'.$delete[0]));
-        $file = $request->file('image_file');
-        if ($request->hasFile("image_file")) {
-            $fileName = time() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('uploads/images/team/'), $fileName);
-            $request->request->add(['image' => $fileName]);
-        }
         $data['row'] =$this->model->findOrFail($id);
         if(!$data ['row']){
             request()->session()->flash('error','Invalid Request');
@@ -105,16 +99,15 @@ class TeamMemberController extends BackendBaseController
 
         }
         return redirect()->route($this->__loadDataToView($this->route . 'index'));
+
+
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy($id)
     {
-        $delete = TeamMember::where('id', $id)->pluck('image');
-
-        unlink(public_path('uploads\images\team/'.$delete[0]));
 
         $this->model->findorfail($id)->delete();
         return redirect()->route($this->__loadDataToView($this->route . 'index'))->with('success',$this->panel .' Deleted Successfully');
