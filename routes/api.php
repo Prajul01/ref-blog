@@ -22,16 +22,24 @@ use App\Http\Controllers\API\ProjectController;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
+Route::middleware('auth:sanctum')->group(function () {
+    Route::resource('client',ClientController::class);
+    Route::resource('category',CategoryController::class);
+    Route::resource('team',TeamMemberController::class);
+    Route::resource('blog',BlogController::class);
+    Route::resource('project',ProjectController::class);
+    Route::resource('comment',CommentController::class);
+    Route::resource('contact',ContactUSController::class);
+    Route::resource('outsourcing',OutsourcingController::class);
+    Route::resource('virtualEmployee',VirtualEmployeeController::class);
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+    Route::get('/user', function (Request $request) {
+        return $request->user();
+    });
+
 });
-Route::resource('client',ClientController::class);
-Route::resource('category',CategoryController::class);
-Route::resource('team',TeamMemberController::class);
-Route::resource('blog',BlogController::class);
-Route::resource('project',ProjectController::class);
-Route::resource('comment',CommentController::class);
-Route::resource('contact',ContactUSController::class);
-Route::resource('outsourcing',OutsourcingController::class);
-Route::resource('virtualEmployee',VirtualEmployeeController::class);
+//Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+//    return $request->user();
+//});
+Route::post('login', [\App\Http\Controllers\API\AuthenticateController::class, 'login']);
+Route::post('register', [\App\Http\Controllers\API\AuthenticateController::class, 'register']);
