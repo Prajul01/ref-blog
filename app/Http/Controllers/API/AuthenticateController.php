@@ -11,29 +11,34 @@ use Illuminate\Support\Facades\Auth;
 
 class AuthenticateController extends Controller
 {
-    public function login(Request $request)
-    {
-        if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
-            $user = User::where('id', auth()->user()->id)->first();
-            $success['token'] = $user->createToken('TokenName')->plainTextToken;
-            $success['data'] = $user;
-//            return $success;
-//            $success['user'] = $user;
-            $response = [
-                'success' => "true",
-//                'status' => $this->successStatus,
-                'data' => $success
-            ];
-            return response()->json($response, 200);
+    public function login(Request $request){
+        $user = User::where('email', $request->email)->first();
+        if($user){
+            if(Auth::attempt(['email' =>$request->email, 'password' => $request->password])){
+                $user = User::where('id',auth()->user()->id)->first();
+                $success['token'] =  $user->createToken('TokenName')->plainTextToken;
+                $response = [
+                    'success' => true,
+                    'data'  => $user,
+                    'token'=>$success['token']
+                ];
+                return response()->json($response,200);
+            } else {
+                $response = [
+                    'success' => false,
+                    'message' => 'Invalid password'
+                ];
+                return response()->json($response, 401);
+            }
         } else {
-//            return "Failed";
-//            $response = [
-//                'success' => "false",
-//                'status' => $this->errorStatus
-//            ];
-            return response()->json(['error' => 'Unauthorised'], 401);
+            $response = [
+                'success' => false,
+                'message' => 'Username not registered'
+            ];
+            return response()->json($response, 401);
         }
     }
+
 
 
     public function register(Request $request)
@@ -57,7 +62,6 @@ class AuthenticateController extends Controller
                 'name' => $request->name,
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
-                'group_code' => $request->password,
             ]);
             $token = $user->createToken('auth_token')->plainTextToken;
 

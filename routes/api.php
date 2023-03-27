@@ -23,23 +23,28 @@ use App\Http\Controllers\API\ProjectController;
 |
 */
 Route::middleware('auth:sanctum')->group(function () {
-    Route::resource('client',ClientController::class);
-    Route::resource('category',CategoryController::class);
-    Route::resource('team',TeamMemberController::class);
-    Route::resource('blog',BlogController::class);
-    Route::resource('project',ProjectController::class);
-    Route::resource('comment',CommentController::class);
-    Route::resource('contact',ContactUSController::class);
-    Route::resource('outsourcing',OutsourcingController::class);
-    Route::resource('virtualEmployee',VirtualEmployeeController::class);
-
+    Route::resource('client',ClientController::class)->except(['index']);
+    Route::resource('category',CategoryController::class)->except(['index']);
+    Route::resource('team',TeamMemberController::class)->except(['index']);
+    Route::resource('blog',BlogController::class)->except(['index']);
+    Route::resource('project',ProjectController::class)->except(['index']);
+    Route::resource('comment',CommentController::class)->except(['index']);
+    Route::resource('contact',ContactUSController::class)->except(['index']);
+    Route::resource('outsourcing',OutsourcingController::class)->except(['index']);
+    Route::resource('virtualEmployee',VirtualEmployeeController::class)->except(['index']);
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
 
 });
-//Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-//    return $request->user();
-//});
 Route::post('login', [\App\Http\Controllers\API\AuthenticateController::class, 'login']);
 Route::post('register', [\App\Http\Controllers\API\AuthenticateController::class, 'register']);
+Route::get('client',[ClientController::class,'index']);
+Route::get('category',[CategoryController::class,'index']);
+Route::get('team',[TeamMemberController::class,'index']);
+Route::get('blog',[BlogController::class,'index']);
+Route::get('project',[ProjectController::class,'index']);
+Route::get('comment',[CommentController::class,'index']);
+Route::get('contact',[ContactUSController::class,'index']);
+Route::get('outsourcing',[OutsourcingController::class,'index']);
+Route::get('virtualEmployee',[VirtualEmployeeController::class,'index']);

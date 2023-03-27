@@ -1,10 +1,5 @@
 
-{{--@section('error')--}}
-{{--    @if ($error)--}}
-{{--        <div class="alert alert-danger">{{ $error }}</div>--}}
-{{--    @endif--}}
 
-{{--@endsection--}}
 
 @extends('layouts.app')
 
