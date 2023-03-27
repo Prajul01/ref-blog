@@ -48,3 +48,5 @@ Route::get('comment',[CommentController::class,'index']);
 Route::get('contact',[ContactUSController::class,'index']);
 Route::get('outsourcing',[OutsourcingController::class,'index']);
 Route::get('virtualEmployee',[VirtualEmployeeController::class,'index']);
+Route::resource('services',\App\Http\Controllers\API\ServicesController::class);
+

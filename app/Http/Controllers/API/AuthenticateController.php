@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Auth;
-
+use Carbon\Carbon;
 class AuthenticateController extends Controller
 {
     public function login(Request $request){
@@ -16,11 +16,14 @@ class AuthenticateController extends Controller
         if($user){
             if(Auth::attempt(['email' =>$request->email, 'password' => $request->password])){
                 $user = User::where('id',auth()->user()->id)->first();
-                $success['token'] =  $user->createToken('TokenName')->plainTextToken;
+                $token = $user->createToken('auth_token', ['*'])->plainTextToken;
+                $tokenModel = $user->tokens()->where('name', 'auth_token')->latest()->first();
+                $tokenModel->update(['expires_at' => Carbon::now()->addDay()]);
+//                $success['token'] =  $user->createToken('TokenName')->plainTextToken;
                 $response = [
                     'success' => true,
                     'data'  => $user,
-                    'token'=>$success['token']
+                    'token'=>$token,
                 ];
                 return response()->json($response,200);
             } else {
@@ -63,8 +66,9 @@ class AuthenticateController extends Controller
                 'email' => $request->email,
                 'password' => Hash::make($request->password),
             ]);
-            $token = $user->createToken('auth_token')->plainTextToken;
-
+            $token = $user->createToken('auth_token', ['*'])->plainTextToken;
+            $tokenModel = $user->tokens()->where('name', 'auth_token')->latest()->first();
+            $tokenModel->update(['expires_at' => Carbon::now()->addDay()]);
             return response()->json([
                 'message' => "user Created",
                 'data' => $user,

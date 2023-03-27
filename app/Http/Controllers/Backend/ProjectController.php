@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
 use App\Models\Project;
+use App\Models\ProjectImage;
 use Illuminate\Http\Request;
 
 class ProjectController extends BackendBaseController
@@ -23,6 +24,8 @@ class ProjectController extends BackendBaseController
     {
         $this->title = 'List';
         $data['row'] = $this->model->all();
+        $projectImages = ProjectImage::where('project_id',  $data['row']->first()->id)->get();
+
 //        foreach ($data['row'] as $cont) {
 //            $cont = unserialize($cont->contributors);
 //
@@ -30,7 +33,7 @@ class ProjectController extends BackendBaseController
 //
 
 
-        return view($this->__loadDataToView($this->view . 'index'),compact('data'));
+        return view($this->__loadDataToView($this->view . 'index'),compact('data','projectImages'));
     }
 
     /**
@@ -52,7 +55,7 @@ class ProjectController extends BackendBaseController
     $model->title = $request->input('title');
     $model->description = $request->input('description');
     $model->excerpt = $request->input('excerpt');
-    $model->thumbnail = $request->input('thumbnail');
+//    $model->thumbnail = $request->input('thumbnail');
         $contributors = [
             [
                 'name' => $request->input('contributor_name'),
@@ -75,6 +78,16 @@ class ProjectController extends BackendBaseController
 
     }
     $model->save();
+        $imageArray['project_id'] = $model->id;
+        $imageFiles = $request->file('img');
+        for ($i = 0; $i < count($imageFiles); $i++) {
+            $image = $imageFiles[$i];
+            $image_name = rand(6785, 9814) . '_' . $image->getClientOriginalName();
+            $image->move(public_path('uploads/images/project/multiple'), $image_name);
+            $imageArray['image'] = $image_name;
+            ProjectImage::create($imageArray);
+        }
+
         return redirect()->route($this->__loadDataToView($this->route . 'index'));
 
     }

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\Project;
+use App\Models\ProjectImage;
 use Illuminate\Http\Request;
 
 class ProjectController extends Controller
@@ -13,11 +14,13 @@ class ProjectController extends Controller
     {
 
         $data['row'] = Project::all();
+        $projectImages = ProjectImage::where('project_id',  $data['row']->first()->id)->get();
 
         return response()->json([
             "success" => true,
             "message" => "Projects   List",
-            "data" => $data['row']
+            "data" => $data['row'],
+            "image"=>$projectImages,
         ], 201);
 
 
@@ -38,7 +41,6 @@ class ProjectController extends Controller
         $model->title = $request->input('title');
         $model->description = $request->input('description');
         $model->excerpt = $request->input('excerpt');
-        $model->thumbnail = $request->input('thumbnail');
         $contributors = [
             [
                 'name' => $request->input('contributor_name'),
@@ -56,15 +58,26 @@ class ProjectController extends Controller
 
             $file->move(public_path('uploads/images/project/'), $fileName);
 
-            $request->request->add(['image' => $fileName]);
+            $request->request->add(['images' => $fileName]);
             $model->image = $fileName;
 
         }
         $model->save();
+        $imageArray['project_id'] = $model->id;
+        $imageFiles = $request->file('img');
+        for ($i = 0; $i < count($imageFiles); $i++) {
+            $image = $imageFiles[$i];
+            $image_name = rand(6785, 9814) . '_' . $image->getClientOriginalName();
+            $image->move(public_path('uploads/images/project/multiple'), $image_name);
+            $imageArray['image'] = $image_name;
+             $projectimage=ProjectImage::create($imageArray);
+
+        }
         if ($model) {
             $resp['success'] = true;
             $resp['message'] = 'Project saved successfully ';
             $resp['data']=$model;
+//            $resp['project_image']=$projectimage;
 //                $resp['id']=$data['row']->id;
         } else {
             $resp = [
@@ -81,7 +94,7 @@ class ProjectController extends Controller
     public function show(string $id)
     {
         $this->title= 'View';
-        $data['row']=$this->model->findOrFail($id);
+        $data['row']=Project::findOrFail($id);
         return view($this->__loadDataToView($this->view . 'view'),compact('data'));
     }
 
@@ -90,7 +103,7 @@ class ProjectController extends Controller
      */
     public function edit($id)
     {   $this->title= 'Edit';
-        $data['row']=$this->model->findOrFail($id);
+        $data['row']=Project::findOrFail($id);
 //        dd($data['row']);
         return view($this->__loadDataToView($this->view . 'edit'),compact('data'));
     }
@@ -117,8 +130,7 @@ class ProjectController extends Controller
         $model->links = json_encode($request->input('links'));
 
         $file = $request->file('image_file');
-        $delete = $this->model->where('id', $id)->pluck('image');
-
+        $delete = Project::where('id', $id)->pluck('image');
         unlink(public_path('uploads\images\project/'.$delete[0]));
         if ($request->hasFile('image_file')) {
             $fileName = time() . '_' . $file->getClientOriginalName();
@@ -127,6 +139,22 @@ class ProjectController extends Controller
             $model->image = $fileName;
         }
         $model->save();
+
+        $imageArray['project_id'] = $id;
+        $imageFiles = $request->file('img');
+        $delete=ProjectImage::where('project_id',$id)->pluck('image');
+        foreach ($delete as $delt){
+            unlink(public_path('uploads/images/project/multiple/'.$delt));
+        }
+        ProjectImage::where('project_id',$id)->delete();
+        for ($i = 0; $i < count($imageFiles); $i++) {
+            $image = $imageFiles[$i];
+            $image_name = rand(6785, 9814) . '_' . $image->getClientOriginalName();
+            $image->move(public_path('uploads/images/project/multiple'), $image_name);
+            $imageArray['image'] = $image_name;
+            ProjectImage::create($imageArray);
+
+        }
 
         if ($model) {
             $resp['success'] = true;
@@ -149,10 +177,23 @@ class ProjectController extends Controller
      */
     public function destroy(string $id)
     {
+
+
         $delete = Project::where('id', $id)->pluck('image');
 
         unlink(public_path('uploads\images\project/'.$delete[0]));
 
+        $delete=ProjectImage::where('project_id',$id)->pluck('image');
+        foreach ($delete as $delt){
+            unlink(public_path('uploads/images/project/multiple/'.$delt));
+        }
+
+
+        $multiple = ProjectImage::where('project_id', $id)->get();
+
+        $multiple->each(function($image) {
+            $image->delete();
+        });
        $project=Project::findorfail($id);
         $project->delete();
         return response()->json([

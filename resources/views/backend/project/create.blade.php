@@ -40,16 +40,7 @@
                         </div>
                     </div>
                     <div class="form-group row">
-                        {!! Form::label('thumbnail', 'Thumbnail: <span class="required">*</span>',['class' => 'col-sm-2 col-form-label'],false); !!}
-                        <div class="col-sm-10">
-                            {!! Form::text('thumbnail', null,['class' => 'form-control','placeholder' => 'Enter Thumbnail','id'=>'thumbnail',]) !!}
-                            @error('thumbnail')
-                            <span class="text text-danger">{{$message}}</span>
-                            @enderror
-                        </div>
-                    </div>
-                    <div class="form-group row">
-                        {!! Form::label('image_file', 'Image: <span class="required">*</span>',['class' => 'col-sm-2 col-form-label'],false); !!}
+                        {!! Form::label('image_file', 'Thumbnail: <span class="required">*</span>',['class' => 'col-sm-2 col-form-label'],false); !!}
                         <div class="col-sm-10">
                             {!! Form::file('image_file', null,['class' => 'form-control','placeholder' => 'Enter Github Link','id'=>'image_file','name'=>'image_file']) !!}
                             @error('image_file')
@@ -57,8 +48,16 @@
                             @enderror
                         </div>
                     </div>
-                    <div class="col-sm-10" >
+                    <div class="form-group row">
+                        <label for="img" class="col-sm-2 col-form-label"> Multiple Image</label>
+                        <div class="col-sm-10">
+                        <input type="file" name="img[]" id="img" class="form-control" multiple >
+                        </div>
 
+                    </div>
+                    <div  style="display: flex" >
+                        <div><h2>Links</h2></div>
+<div class="col-sm-10" style="margin-left: 90px">
                     <table class="table table-striped table-bordered" id="link_wrapper">
 
                         <tr>
@@ -74,10 +73,12 @@
 
                         </tr>
                     </table>
+</div>
                     </div>
 
-                    <h2>Links</h2>
-                    <div class="col-sm-10" >
+                    <div  style="display: flex" >
+                    <div ><h2>Contributors</h2></div>
+                    <div class="col-sm-10"  >
 
                     <table class="table table-striped table-bordered" id="image_wrapper">
 {{--                        <h2>contributors</h2>--}}
@@ -100,6 +101,8 @@
                         </tr>
                     </table>
                     </div>
+                    </div>
+
 
 
 
