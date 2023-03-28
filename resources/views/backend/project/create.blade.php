@@ -67,9 +67,9 @@
 {{--                            <th>Action</th>--}}
                         </tr>
                         <tr>
-                            <td><input type="text" name="links[]" class="form-control"/></td>
-                            <td><input type="text" name="links[]" class="form-control"/></td>
-                            <td><input type="text" name="links[]" class="form-control"/></td>
+                            <td><input type="text" name="link" class="form-control"/></td>
+                            <td><input type="text" name="playstore" class="form-control"/></td>
+                            <td><input type="text" name="appstore" class="form-control"/></td>
 
                         </tr>
                     </table>
@@ -84,14 +84,14 @@
 {{--                        <h2>contributors</h2>--}}
                         <tr>
                             <th>Name</th>
-                            <th>Facebook</th>
+                            <th>Github</th>
                             <th>Linkedin</th>
                             <th>Action</th>
                             {{--                            <th>Action</th>--}}
                         </tr>
                         <tr>
                             <td><input type="text" name="contributor_name[]" class="form-control"/></td>
-                            <td><input type="text" name="contributor_facebook[]" class="form-control"/></td>
+                            <td><input type="text" name="contributor_github[]" class="form-control"/></td>
                             <td><input type="text" name="contributor_linkedin[]" class="form-control"/></td>
                             <td>
                                 <button class="btn btn-info" type="button" id="addMoreImage"style="margin-bottom: 20px"> <i class="fa fa-plus"></i> Add</button>

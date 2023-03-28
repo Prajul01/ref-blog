@@ -55,17 +55,25 @@ class ProjectController extends BackendBaseController
     $model->title = $request->input('title');
     $model->description = $request->input('description');
     $model->excerpt = $request->input('excerpt');
+        $model->client = $request->input('client');
 //    $model->thumbnail = $request->input('thumbnail');
         $contributors = [
             [
                 'name' => $request->input('contributor_name'),
-                'facebook' => $request->input('contributor_facebook'),
+                'github' => $request->input('contributor_github'),
                 'linkedin' => $request->input('contributor_linkedin')
             ],
         ];
         $model->contributors = json_encode($contributors);
     // To store array data in database, you can use the `serialize()` function to convert the array into a string
-    $model->links = json_encode($request->input('links'));
+        $links=[
+            [
+                'link'=>$request->input('link'),
+                'playstore'=>$request->input('playstore'),
+                'appstore'=>$request->input('appstore')
+            ],
+        ];
+        $model->links = json_encode($links);
         $file = $request->file('image_file');
     if ($request->hasFile('image_file')) {
 
@@ -122,15 +130,23 @@ class ProjectController extends BackendBaseController
         $model->description = $request->input('description');
         $model->excerpt = $request->input('excerpt');
         $model->thumbnail = $request->input('thumbnail');
+        $model->client = $request->input('client');
         $contributors = [
             [
                 'name' => $request->input('contributor_name'),
-                'facebook' => $request->input('contributor_facebook'),
+                'github' => $request->input('contributor_github'),
                 'linkedin' => $request->input('contributor_linkedin')
             ],
         ];
         $model->contributors = json_encode($contributors);
-        $model->links = json_encode($request->input('links'));
+        $links=[
+            [
+                'link'=>$request->input('link'),
+                'playstore'=>$request->input('playstore'),
+                'appstore'=>$request->input('appstore')
+            ],
+        ];
+        $model->links = json_encode($links);
 
         $file = $request->file('image_file');
         $delete = $this->model->where('id', $id)->pluck('image');

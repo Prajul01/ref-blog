@@ -14,18 +14,24 @@ class ProjectController extends Controller
     {
 
         $data['row'] = Project::all();
-        $projectImages = ProjectImage::where('project_id',  $data['row']->first()->id)->get();
+        $projectImages = ProjectImage::whereIn('project_id', $data['row']->pluck('id'))->get();
+
+// Create a new associative array to map project IDs to their corresponding images
+        $imageMap = [];
+        foreach ($projectImages as $image) {
+            $imageMap[$image->project_id][] = $image;
+        }
+
+// Loop through the project array and add the corresponding images to each project
+        foreach ($data['row'] as $project) {
+            $project->images = $imageMap[$project->id] ?? [];
+        }
 
         return response()->json([
             "success" => true,
-            "message" => "Projects   List",
-            "data" => $data['row'],
-            "image"=>$projectImages,
+            "message" => "Projects List",
+            "data" => $data['row']
         ], 201);
-
-
-
-
     }
     public function create()
     {
@@ -41,16 +47,23 @@ class ProjectController extends Controller
         $model->title = $request->input('title');
         $model->description = $request->input('description');
         $model->excerpt = $request->input('excerpt');
+        $model->client = $request->input('client');
         $contributors = [
             [
                 'name' => $request->input('contributor_name'),
-                'facebook' => $request->input('contributor_facebook'),
+                'github' => $request->input('contributor_github'),
                 'linkedin' => $request->input('contributor_linkedin')
             ],
         ];
         $model->contributors = json_encode($contributors);
-        // To store array data in database, you can use the `serialize()` function to convert the array into a string
-        $model->links = json_encode($request->input('links'));
+        $links=[
+            [
+                'links'=>$request->input('links'),
+                'playstore'=>$request->input('playstore'),
+                'appstore'=>$request->input('appstore')
+        ],
+        ];
+        $model->links = json_encode($links);
         $file = $request->file('image_file');
         if ($request->hasFile('image_file')) {
 
@@ -62,24 +75,26 @@ class ProjectController extends Controller
             $model->image = $fileName;
 
         }
+
         $model->save();
         $imageArray['project_id'] = $model->id;
         $imageFiles = $request->file('img');
+        $projectImages = []; // Create an empty array to store the newly created ProjectImage objects
         for ($i = 0; $i < count($imageFiles); $i++) {
             $image = $imageFiles[$i];
             $image_name = rand(6785, 9814) . '_' . $image->getClientOriginalName();
             $image->move(public_path('uploads/images/project/multiple'), $image_name);
             $imageArray['image'] = $image_name;
-             $projectimage=ProjectImage::create($imageArray);
-
+            $projectImage = ProjectImage::create($imageArray);
+            $projectImages[] = $projectImage; // Push the newly created ProjectImage object into the array
         }
         if ($model) {
             $resp['success'] = true;
             $resp['message'] = 'Project saved successfully ';
             $resp['data']=$model;
-//            $resp['project_image']=$projectimage;
-//                $resp['id']=$data['row']->id;
-        } else {
+            $resp['project_images']=$projectImages; // Add the array of ProjectImage objects to the response
+        }
+        else {
             $resp = [
                 'success' => false,
                 'message' => 'Project Couldnot be Saved'
@@ -93,19 +108,33 @@ class ProjectController extends Controller
      */
     public function show(string $id)
     {
-        $this->title= 'View';
-        $data['row']=Project::findOrFail($id);
-        return view($this->__loadDataToView($this->view . 'view'),compact('data'));
+        $response=Project::findOrFail($id);
+        $projectImages = ProjectImage::where('project_id',  $response->first()->id)->get();
+        if ($response) {
+            $resp['success'] = true;
+            $resp['message'] = 'Project list ';
+            $resp['data']=$response;
+            $resp['data']['project_images'] = $projectImages;
+        }
+        else {
+            $resp = [
+                'success' => false,
+                'message' => 'Project not Found'
+            ];
+        }
+
+        return response()->json($resp);
+
     }
 
     /**
      * Show the form for editing the specified resource.
      */
     public function edit($id)
-    {   $this->title= 'Edit';
-        $data['row']=Project::findOrFail($id);
+    {
+        $response=Project::findOrFail($id);
 //        dd($data['row']);
-        return view($this->__loadDataToView($this->view . 'edit'),compact('data'));
+        return response()->json(["data" => $response]);
     }
 
     /**
@@ -118,16 +147,24 @@ class ProjectController extends Controller
         $model->title = $request->input('title');
         $model->description = $request->input('description');
         $model->excerpt = $request->input('excerpt');
+        $model->client = $request->input('client');
         $model->thumbnail = $request->input('thumbnail');
         $contributors = [
             [
                 'name' => $request->input('contributor_name'),
-                'facebook' => $request->input('contributor_facebook'),
+                'github' => $request->input('contributor_github'),
                 'linkedin' => $request->input('contributor_linkedin')
             ],
         ];
         $model->contributors = json_encode($contributors);
-        $model->links = json_encode($request->input('links'));
+        $links=[
+            [
+                'link'=>$request->input('link'),
+                'playstore'=>$request->input('playstore'),
+                'appstore'=>$request->input('appstore')
+            ],
+        ];
+        $model->links = json_encode($links);
 
         $file = $request->file('image_file');
         $delete = Project::where('id', $id)->pluck('image');

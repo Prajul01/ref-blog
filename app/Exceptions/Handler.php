@@ -5,6 +5,11 @@ namespace App\Exceptions;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Throwable;
 
+
+
+use Illuminate\Auth\AuthenticationException;
+use Symfony\Component\HttpFoundation\Response;
+
 class Handler extends ExceptionHandler
 {
     /**
@@ -44,5 +49,13 @@ class Handler extends ExceptionHandler
         $this->reportable(function (Throwable $e) {
             //
         });
+    }
+    protected function unauthenticated($request, AuthenticationException $exception)
+    {
+        if ($request->expectsJson()) {
+            return response()->json(['error' => 'You must be logged in to access this page.'], Response::HTTP_UNAUTHORIZED);
+        }
+
+        return redirect()->guest('/login')->with('error', 'You must be logged in to access this page.');
     }
 }

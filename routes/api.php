@@ -22,7 +22,11 @@ use App\Http\Controllers\API\ProjectController;
 | be assigned to the "api" middleware group. Make something great!
 |
 */
-Route::middleware('auth:sanctum')->group(function () {
+
+
+
+
+Route::middleware(['auth:sanctum'])->group(function () {
     Route::resource('client',ClientController::class)->except(['index']);
     Route::resource('category',CategoryController::class)->except(['index']);
     Route::resource('team',TeamMemberController::class)->except(['index']);
@@ -35,6 +39,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
+
 
 });
 Route::post('login', [\App\Http\Controllers\API\AuthenticateController::class, 'login']);
