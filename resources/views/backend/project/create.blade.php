@@ -40,6 +40,15 @@
                         </div>
                     </div>
                     <div class="form-group row">
+                        {!! Form::label('client', 'Client: <span class="required">*</span>',['class' => 'col-sm-2 col-form-label'],false); !!}
+                        <div class="col-sm-10">
+                            {!! Form::textarea('client', null,['class' => 'form-control','placeholder' => 'Enter client']) !!}
+                            @error('client')
+                            <span class="text text-danger">{{$message}}</span>
+                            @enderror
+                        </div>
+                    </div>
+                    <div class="form-group row">
                         {!! Form::label('image_file', 'Thumbnail: <span class="required">*</span>',['class' => 'col-sm-2 col-form-label'],false); !!}
                         <div class="col-sm-10">
                             {!! Form::file('image_file', null,['class' => 'form-control','placeholder' => 'Enter Github Link','id'=>'image_file','name'=>'image_file']) !!}
@@ -86,6 +95,7 @@
                             <th>Name</th>
                             <th>Github</th>
                             <th>Linkedin</th>
+                            <th>Role</th>
                             <th>Action</th>
                             {{--                            <th>Action</th>--}}
                         </tr>
@@ -93,6 +103,7 @@
                             <td><input type="text" name="contributor_name[]" class="form-control"/></td>
                             <td><input type="text" name="contributor_github[]" class="form-control"/></td>
                             <td><input type="text" name="contributor_linkedin[]" class="form-control"/></td>
+                            <td><input type="text" name="role[]" class="form-control"/></td>
                             <td>
                                 <button class="btn btn-info" type="button" id="addMoreImage"style="margin-bottom: 20px"> <i class="fa fa-plus"></i> Add</button>
 
@@ -157,6 +168,7 @@
                     + '<td><input type="text" name="contributor_name[]" class="form-control"/></td>'
                     + '<td><input type="text" name="contributor_facebook[]" class="form-control"/></td>'
                     + '<td><input type="text" name="contributor_linkedin[]" class="form-control"/></td>'
+                    + '<td><input type="text" name="role[]" class="form-control"/></td>'
                     + '<td>'
                     + '<a class="btn btn-block btn-warning sa-warning remove_row"> <i class="fa fa-trash"></i></a>'
                     + '</td>'

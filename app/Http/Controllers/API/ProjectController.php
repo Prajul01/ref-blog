@@ -52,7 +52,8 @@ class ProjectController extends Controller
             [
                 'name' => $request->input('contributor_name'),
                 'github' => $request->input('contributor_github'),
-                'linkedin' => $request->input('contributor_linkedin')
+                'linkedin' => $request->input('contributor_linkedin'),
+                'role' => $request->input('role')
             ],
         ];
         $model->contributors = json_encode($contributors);
@@ -153,7 +154,8 @@ class ProjectController extends Controller
             [
                 'name' => $request->input('contributor_name'),
                 'github' => $request->input('contributor_github'),
-                'linkedin' => $request->input('contributor_linkedin')
+                'linkedin' => $request->input('contributor_linkedin'),
+                'role' => $request->input('role')
             ],
         ];
         $model->contributors = json_encode($contributors);

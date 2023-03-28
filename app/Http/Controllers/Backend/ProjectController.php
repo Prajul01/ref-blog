@@ -96,7 +96,7 @@ class ProjectController extends BackendBaseController
             ProjectImage::create($imageArray);
         }
 
-        return redirect()->route($this->__loadDataToView($this->route . 'index'));
+        return redirect()->route($this->__loadDataToView($this->route . 'ind'));
 
     }
     /**

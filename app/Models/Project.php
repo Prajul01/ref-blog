@@ -9,7 +9,7 @@ class Project extends Model
 {
     use HasFactory;
     protected $table='projects';
-    protected $fillable=['image','title','description','links','contributors','excerpt'];
+    protected $fillable=['image','title','description','links','contributors','excerpt','client'];
 
     public function setLinksAttribute($value)
     {
