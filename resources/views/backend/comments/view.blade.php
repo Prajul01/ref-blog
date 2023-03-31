@@ -30,19 +30,19 @@
 
                     <tr>
                         <th>Name</th>
-                        <td>{{$data['row']->fname}} {{$data['row']->lname}}</td>
+                        <td>{{$data['row']['fname']}} {{$data['row']['lname']}}</td>
                     </tr>
                     <tr>
                         <th>Email</th>
-                        <td>{{$data['row']->email}} </td>
+                        <td>{{$data['row']['email']}} </td>
                     </tr>
                     <tr>
                         <th>Blog</th>
-                        <td>{{$data['row']->blog->title}} </td>
+                        <td>{{$data['row']['blog']['title']}} </td>
                     </tr>
                     <tr>
                         <th>Comment</th>
-                        <td>{{$data['row']->comments}} </td>
+                        <td>{{$data['row']['comments']}} </td>
                     </tr>
                 </table>
 
@@ -51,11 +51,4 @@
         <!-- /.card -->
     </div>
 @endsection
-@section('jss')
-    <script type="text/javascript">
-        $(document).ready(function () {
-            $('.ckeditor').ckeditor();
-        });
-    </script>
-    <script src="//cdn.ckeditor.com/4.14.0/standard/ckeditor.js"></script>
-@endsection
+

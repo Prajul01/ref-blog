@@ -30,15 +30,28 @@
 
                     <tr>
                         <th>Title</th>
-                        <td>{{$data['row']->title}}</td>
-                    </tr>
-                    <tr>
-                        <th>Icon</th>
-                        <td>{{$data['row']->icon}} </td>
+                        <td>{{$data['row']['title']}}</td>
                     </tr>
                     <tr>
                         <th>Excerpt</th>
-                        <td>{{$data['row']->excerpt}} </td>
+                        <td>{{$data['row']['excerpt']}} </td>
+                    </tr>
+                    <tr>
+                        <th>Description</th>
+                        <td>{!! $data['row']['description'] !!} </td>
+                    </tr>
+                    <tr>
+                        <th>Icon</th>
+                        <td>
+                            <?php
+                            $path = 'uploads/images/services/'; // Retrieve the path from the database
+                            $url = env('IMG_URL').$path ;
+//                                $url =env('API_URL') . '/client/'; . $path;
+                            ?>
+                            <img src="{{ $url.$data['row']['icon'] }}" class="image2" alt=""
+                                 style="height: 100px; width: 100px">
+
+                        </td>
                     </tr>
 
                 </table>

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Backend;
 use App\Http\Controllers\Controller;
 use App\Models\TeamMember;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 
 class TeamMemberController extends BackendBaseController
 {
@@ -22,7 +23,10 @@ class TeamMemberController extends BackendBaseController
     public function index()
     {
         $this->title = 'List';
-        $data['row'] = $this->model->all();
+        $url = env('API_URL') . '/team';
+
+        $data['row'] = Http::get($url)['data'];
+//        dd( $data['row']);
         return view($this->__loadDataToView($this->view . 'index'),compact('data'));
     }
 
@@ -31,6 +35,7 @@ class TeamMemberController extends BackendBaseController
      */
     public function create()
     {
+
         $this->title = 'Create';
 
         return view($this->__loadDataToView($this->view . 'create'));
@@ -41,15 +46,37 @@ class TeamMemberController extends BackendBaseController
      */
     public function store(Request $request)
     {
-        $data['row'] = $request->all();
-        $file = $request->file('image_file');
-        if ($request->hasFile("image_file")) {
-            $fileName = time() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('uploads/images/team/'), $fileName);
-            $request->request->add(['image' => $fileName]);
+//       dd('hi');
 
-        }
-        $data['row']=$this->model->create($request->all());
+        $client = new \GuzzleHttp\Client();
+        $url = env('API_URL') . '/team';
+        $imageFile = $request->file('image_file');
+        $data['row'] = $client->request('POST', $url, [
+            'multipart' => [
+                [
+                    'name'     => 'name',
+                    'contents' => $request->input('name')
+                ],
+                [
+                    'name'     => 'github',
+                    'contents' => $request->input('github')
+                ],
+                [
+                    'name'     => 'designation',
+                    'contents' => $request->input('designation')
+
+                ],
+                [
+                    'name'     => 'linkedin',
+                    'contents' => $request->input('linkedin')
+                ],
+                [
+                    'name' => 'image_file',
+                    'contents' => fopen($imageFile->getRealPath(), 'r'),
+                    'filename' => $imageFile->getClientOriginalName(),
+                ]
+            ]
+        ]);
             if ($data['row']) {
                 request()->session()->flash('success', $this->panel . 'Created Successfully');
             } else {
@@ -65,19 +92,35 @@ class TeamMemberController extends BackendBaseController
      */
     public function show(string $id)
     {
-        $this->title= 'View';
-        $data['row']=$this->model->findOrFail($id);
-        return view($this->__loadDataToView($this->view . 'view'),compact('data'));
+        $this->title = 'View';
+        $url = env('API_URL') . '/team/';
+        $response = Http::get($url.$id);
+        //dd($response);
+        if ($response->successful()) {
+            $data['row'] = $response['data'];
+            return view($this->__loadDataToView($this->view . 'view'), compact('data'));
+        } else {
+            // handle error
+            abort(404);
+        }
     }
 
     /**
      * Show the form for editing the specified resource.
      */
     public function edit($id)
-    {   $this->title= 'Edit';
-        $data['row']=$this->model->findOrFail($id);
-//        dd($data['row']);
-        return view($this->__loadDataToView($this->view . 'edit'),compact('data'));
+    {
+        $this->title= 'Edit';
+        $url = env('API_URL') . '/team/';
+        $response = Http::get($url.$id. '/edit');
+
+        if ($response->successful()) {
+            $data['row'] = $response['data'];
+            return view($this->__loadDataToView($this->view . 'edit'), compact('data'));
+        } else {
+            // handle error
+            abort(404);
+        }
     }
 
     /**
@@ -85,20 +128,40 @@ class TeamMemberController extends BackendBaseController
      */
     public function update(Request $request, string $id)
     {
-        $delete = TeamMember::where('id', $id)->pluck('image');
-        unlink(public_path('uploads\images\team/'.$delete[0]));
-        $file = $request->file('image_file');
-        if ($request->hasFile("image_file")) {
-            $fileName = time() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('uploads/images/team/'), $fileName);
-            $request->request->add(['image' => $fileName]);
-        }
-        $data['row'] =$this->model->findOrFail($id);
+        $client = new \GuzzleHttp\Client();
+        $url = env('API_URL') . '/team/';
+        $imageFile = $request->file('image_file');
+        $data['row'] = $client->request('POST', $url. $id. '?_method=PUT' , [
+            'multipart' => [
+                [
+                    'name'     => 'name',
+                    'contents' => $request->input('name')
+                ],
+                [
+                    'name'     => 'github',
+                    'contents' => $request->input('github')
+                ],
+                [
+                    'name'     => 'designation',
+                    'contents' => $request->input('designation')
+
+                ],
+                [
+                    'name'     => 'linkedin',
+                    'contents' => $request->input('linkedin')
+                ],
+                [
+                    'name' => 'image_file',
+                    'contents' => fopen($imageFile->getRealPath(), 'r'),
+                    'filename' => $imageFile->getClientOriginalName(),
+                ]
+            ]
+        ]);
         if(!$data ['row']){
             request()->session()->flash('error','Invalid Request');
             return redirect()->route($this->__loadDataToView($this->route . 'index'));
         }
-        if ($data['row']->update($request->all())) {
+        if ($data['row']) {
             $request->session()->flash('success', $this->panel .' Update Successfully');
         } else {
             $request->session()->flash('error', $this->panel .' Update failed');
@@ -112,11 +175,17 @@ class TeamMemberController extends BackendBaseController
      */
     public function destroy(string $id)
     {
-        $delete = TeamMember::where('id', $id)->pluck('image');
+        $client = new \GuzzleHttp\Client();
+        $url = env('API_URL') . '/team/';
 
-        unlink(public_path('uploads\images\team/'.$delete[0]));
+        $response = $client->request('DELETE', $url . $id);
 
-        $this->model->findorfail($id)->delete();
-        return redirect()->route($this->__loadDataToView($this->route . 'index'))->with('success',$this->panel .' Deleted Successfully');
+        if ($response->getStatusCode() == 200) {
+            return redirect()->route($this->__loadDataToView($this->route . 'index'))->with('success',$this->panel .' Deleted Successfully');
+
+        } else {
+            return redirect()->route($this->__loadDataToView($this->route . 'index'))->with('error',$this->panel .' Deleted Could noot be deleted');
+
+        }
     }
 }

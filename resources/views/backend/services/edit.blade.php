@@ -32,7 +32,7 @@
             </div>
             <button class="button" onclick="history.back(-1)">Go-Back</button>
             <div class="card-body">
-                {!! Form::model($data['row'], ['route' => [$route.'update', $data['row']->id ],'enctype'=>'multipart/form-data']) !!}
+                {!! Form::model($data['row'], ['route' => [$route.'update', $data['row']['id'] ],'enctype'=>'multipart/form-data']) !!}
                 {!! Form::hidden('_method', 'PUT') !!}
                     @csrf
                     <div class="form-group row">
@@ -45,16 +45,15 @@
                             @enderror
                         </div>
                     </div>
-                    <div class="form-group row">
-                        {!! Form::label('icon', 'Icon: <span class="required">*</span>',['class' => 'col-sm-2 col-form-label'],false); !!}
-                        <div class="col-sm-10">
-                            {!! Form::text('icon', null,['class' => 'form-control','placeholder' => 'Enter Icon']) !!}
-
-                            @error('icon')
-                            <span class="text text-danger">{{$message}}</span>
-                            @enderror
-                        </div>
+                <div class="form-group row">
+                    {!! Form::label('image_file', 'Icon: <span class="required">*</span>',['class' => 'col-sm-2 col-form-label'],false); !!}
+                    <div class="col-sm-10">
+                        {!! Form::file('image_file',['class' => 'form-control','placeholder' => 'Enter Github Link','id'=>'image_file','name'=>'image_file']) !!}
+                        @error('image_file')
+                        <span class="text text-danger">{{$message}}</span>
+                        @enderror
                     </div>
+                </div>
                     <div class="form-group row">
                         {!! Form::label('excerpt', 'Excerpt: <span class="required">*</span>',['class' => 'col-sm-2 col-form-label'],false); !!}
                         <div class="col-sm-10">
@@ -64,6 +63,15 @@
                             @enderror
                         </div>
                     </div>
+                <div class="form-group row">
+                    {!! Form::label('description', 'Description: <span class="required">*</span>',['class' => 'col-sm-2 col-form-label'],false); !!}
+                    <div class="col-sm-10">
+                        {!! Form::textarea('description', null,['class' => 'form-control','placeholder' => 'Enter Excerpt','id'=>'summernote']) !!}
+                        @error('description')
+                        <span class="text text-danger">{{$message}}</span>
+                        @enderror
+                    </div>
+                </div>
                     <!-- /.card-body -->
 
                     <div class="card-footer">
@@ -75,11 +83,17 @@
         <!-- /.card -->
     </div>
 @endsection
-@section('jss')
-    <script type="text/javascript">
-        $(document).ready(function () {
-            $('.ckeditor').ckeditor();
-        });
+@section('script')
+    <script>
+        $(function () {
+            // Summernote
+            $('#summernote').summernote()
+
+            // CodeMirror
+            CodeMirror.fromTextArea(document.getElementById("codeMirrorDemo"), {
+                mode: "htmlmixed",
+                theme: "monokai"
+            });
+        })
     </script>
-    <script src="//cdn.ckeditor.com/4.14.0/standard/ckeditor.js"></script>
 @endsection

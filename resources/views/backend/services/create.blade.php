@@ -31,11 +31,10 @@
                         </div>
                     </div>
                     <div class="form-group row">
-                        {!! Form::label('icon', 'Icon: <span class="required">*</span>',['class' => 'col-sm-2 col-form-label'],false); !!}
+                        {!! Form::label('image_file', 'Icon: <span class="required">*</span>',['class' => 'col-sm-2 col-form-label'],false); !!}
                         <div class="col-sm-10">
-                            {!! Form::text('icon', null,['class' => 'form-control','placeholder' => 'Enter Icon']) !!}
-
-                            @error('icon')
+                            {!! Form::file('image_file',['class' => 'form-control','placeholder' => 'Enter Github Link','id'=>'image_file','name'=>'image_file']) !!}
+                            @error('image_file')
                             <span class="text text-danger">{{$message}}</span>
                             @enderror
                         </div>
@@ -45,6 +44,15 @@
                         <div class="col-sm-10">
                             {!! Form::textarea('excerpt', null,['class' => 'form-control','placeholder' => 'Enter Excerpt']) !!}
                             @error('excerpt')
+                            <span class="text text-danger">{{$message}}</span>
+                            @enderror
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        {!! Form::label('description', 'Description: <span class="required">*</span>',['class' => 'col-sm-2 col-form-label'],false); !!}
+                        <div class="col-sm-10">
+                            {!! Form::textarea('description', null,['class' => 'form-control','placeholder' => 'Enter Excerpt','id'=>'summernote']) !!}
+                            @error('description')
                             <span class="text text-danger">{{$message}}</span>
                             @enderror
                         </div>
@@ -69,4 +77,18 @@
             color: red;
         }
     </style>
+@endsection
+@section('script')
+    <script>
+        $(function () {
+            // Summernote
+            $('#summernote').summernote()
+
+            // CodeMirror
+            CodeMirror.fromTextArea(document.getElementById("codeMirrorDemo"), {
+                mode: "htmlmixed",
+                theme: "monokai"
+            });
+        })
+    </script>
 @endsection

@@ -47,10 +47,15 @@
                         <td>{{$event['title']}}</td>
 {{--                        <td>{!! Str::limit( $event['description'],500)!!}... </td>--}}
                         <td>{{$event['excerpt']}}</td>
-                        <td>{{$event['category_id']}}</td>
+                        <td>{{$event['category']['name']}}</td>
 
                         <td>
-                            <img src="{{asset('uploads/images/blog/'.$event->image)}}" class="image2" alt=""
+                                <?php
+                                $path = 'uploads/images/blog/'; // Retrieve the path from the database
+                                $url = env('IMG_URL').$path ;
+//                                $url =env('API_URL') . '/client/'; . $path;
+                                ?>
+                            <img src="{{ $url.$event['image'] }}" class="image2" alt=""
                                  style="height: 100px; width: 100px; border: 15px solid white">
 
                         </td>

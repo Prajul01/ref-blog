@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Backend;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 
 class CategoryController extends BackendBaseController
 {
@@ -23,7 +24,9 @@ class CategoryController extends BackendBaseController
     public function index()
     {
         $this->title = 'List';
-        $data['row'] = Category::all();
+        $url = env('API_URL') . '/category';
+        $data['row'] = Http::get($url)['data'];
+//        $data['row'] = Client::all();
         return view($this->__loadDataToView($this->view . 'index'),compact('data'));
     }
 
@@ -42,23 +45,33 @@ class CategoryController extends BackendBaseController
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
-    {
+    {  
+        dd($request->all());
+        $client = new \GuzzleHttp\Client();
+        $url = env('API_URL') . '/category';
+        $nameArray = $request->input('name'); // Retrieve the array of name inputs from the form
 
-        $data['row'] = $request->all();
-        if ($data['row']) {
+        $multipart = [];
 
-            $attribute_value = $request->input('name');
-            for ($i = 0; $i < count($attribute_value); $i++) {
-                $attributeArray['name'] = $attribute_value[$i];
-                Category::create($attributeArray);
-            }
-            if ($data['row']) {
-                request()->session()->flash('success', $this->panel . 'Created Successfully');
-            } else {
-                request()->session()->flash('error', $this->panel . 'Creation Failed');
-            }
-            return redirect()->route($this->__loadDataToView($this->route . 'index'));
+        foreach ($nameArray as $index => $name) {
+            $multipart[] = [
+                'name' => 'name[]',
+                'contents' => $name,
+            ];
+
+
         }
+
+        $response = $client->request('POST', $url, [
+            'multipart' => $multipart,
+        ]);
+        if ($response) {
+            request()->session()->flash('success', $this->panel . 'Created Successfully');
+        } else {
+            request()->session()->flash('error', $this->panel . 'Creation Failed');
+        }
+        return redirect()->route($this->__loadDataToView($this->route . 'index'));
+
     }
 
     /**
@@ -67,7 +80,15 @@ class CategoryController extends BackendBaseController
     public function show(string $id)
     {
         $this->title= 'View';
-        $data['row']=$this->model->findOrFail($id);
+        $url = env('API_URL') . '/category/';
+        $response = Http::get($url. $id);
+        if ($response->successful()) {
+            $data['row'] = $response['data'];
+            return view($this->__loadDataToView($this->view . 'view'), compact('data'));
+        } else {
+            // handle error
+            abort(404);
+        }
         return view($this->__loadDataToView($this->view . 'view'),compact('data'));
     }
 
@@ -76,7 +97,16 @@ class CategoryController extends BackendBaseController
      */
     public function edit($id)
     {   $this->title= 'Edit';
-        $data['row']=$this->model->findOrFail($id);
+        $this->title= 'View';
+        $url = env('API_URL') . '/category/';
+        $response = Http::get($url. $id .'/edit');
+        if ($response->successful()) {
+            $data['row'] = $response['data'];
+            return view($this->__loadDataToView($this->view . 'edit'), compact('data'));
+        } else {
+            // handle error
+            abort(404);
+        }
 
 
         return view($this->__loadDataToView($this->view . 'edit'),compact('data'));
@@ -87,12 +117,17 @@ class CategoryController extends BackendBaseController
      */
     public function update(Request $request, string $id)
     {
-        $data['row'] =$this->model->findOrFail($id);
-        if(!$data ['row']){
-            request()->session()->flash('error','Invalid Request');
-            return redirect()->route($this->__loadDataToView($this->route . 'index'));
-        }
-        if ($data['row']->update($request->all())) {
+        $client = new \GuzzleHttp\Client();
+        $url = env('API_URL') . '/category/';
+        $response = $client->request('POST', $url.$id.'?_method=PUT' , [
+            'multipart' => [
+                [
+                    'name'     => 'name',
+                    'contents' => $request->input('name')
+                ]
+                ]
+        ]);
+        if ($response) {
             $request->session()->flash('success', $this->panel .' Update Successfully');
         } else {
             $request->session()->flash('error', $this->panel .' Update failed');
@@ -109,7 +144,17 @@ class CategoryController extends BackendBaseController
     public function destroy($id)
     {
 
-        $this->model->findorfail($id)->delete();
-        return redirect()->route($this->__loadDataToView($this->route . 'index'))->with('success',$this->panel .' Deleted Successfully');
+        $client = new \GuzzleHttp\Client();
+        $url = env('API_URL') . '/category/';
+
+        $response = $client->request('DELETE', $url . $id);
+
+        if ($response->getStatusCode() == 200) {
+            return redirect()->route($this->__loadDataToView($this->route . 'index'))->with('success',$this->panel .' Deleted Successfully');
+
+        } else {
+            return redirect()->route($this->__loadDataToView($this->route . 'index'))->with('error',$this->panel .' Deleted Could noot be deleted');
+
+        }
     }
 }

@@ -32,14 +32,14 @@
             </div>
             <button class="button" onclick="history.back(-1)">Go-Back</button>
             <div class="card-body">
-                <form method="post" action="{{route($route.'update',$data['row']->id)}}" enctype="multipart/form-data">
+                <form method="post" action="{{route($route.'update',$data['row']['id'])}}" enctype="multipart/form-data">
                     <input type="hidden" name="_method" value="PUT">
                     @csrf
                     <div class="col-md-9">
                         <div class="form-group">
                             <label for="name">Name</label>
                             <input type="text" class="form-control" id="name" name="name"
-                                   placeholder="Enter phone number" value="{{$data['row']->name}}">
+                                   placeholder="Enter phone number" value="{{$data['row']['name']}}">
                             @error('name')
                             <span class="text text-danger">{{$message}}</span>
                             @enderror

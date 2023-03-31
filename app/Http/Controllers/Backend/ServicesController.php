@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Backend;
 use App\Http\Controllers\Controller;
 use App\Models\Service;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 
 class ServicesController extends BackendBaseController
 {
@@ -23,7 +24,9 @@ class ServicesController extends BackendBaseController
     public function index()
     {
         $this->title = 'List';
-        $data['row'] = $this->model->all();
+        $url = env('API_URL') . '/services';
+
+        $data['row'] = Http::get($url)['data'];
         return view($this->__loadDataToView($this->view . 'index'),compact('data'));
     }
 
@@ -44,20 +47,39 @@ class ServicesController extends BackendBaseController
     public function store(Request $request)
     {
 
-        $data['row'] = $request->all();
-        if ($data['row']) {
+        $client = new \GuzzleHttp\Client();
+        $url = env('API_URL') . '/services';
+        $imageFile = $request->file('image_file');
 
-//            $attribute_value = $request->input('name');
-//            for ($i = 0; $i < count($attribute_value); $i++) {
-//                $attributeArray['name'] = $attribute_value[$i];
-                Service::create($request->all());
-            }
-            if ($data['row']) {
-                request()->session()->flash('success', $this->panel . 'Created Successfully');
-            } else {
-                request()->session()->flash('error', $this->panel . 'Creation Failed');
-            }
-            return redirect()->route($this->__loadDataToView($this->route . 'index'));
+        $data['row'] = $client->request('POST', $url, [
+            'multipart' => [
+                [
+                    'name' => 'image_file',
+                    'contents' => fopen($imageFile->getRealPath(), 'r'),
+                    'filename' => $imageFile->getClientOriginalName(),
+                ],
+                [
+                    'name'     => 'title',
+                    'contents' => $request->input('title')
+                ],
+                [
+                    'name'     => 'excerpt',
+                    'contents' => $request->input('excerpt')
+
+                ],
+                [
+                    'name'     => 'description',
+                    'contents' => $request->input('description')
+                ]
+
+            ]
+        ]);
+        if ($data['row']) {
+            request()->session()->flash('success', $this->panel . 'Created Successfully');
+        } else {
+            request()->session()->flash('error', $this->panel . 'Creation Failed');
+        }
+        return redirect()->route($this->__loadDataToView($this->route . 'index'));
         }
 
 
@@ -66,20 +88,35 @@ class ServicesController extends BackendBaseController
      */
     public function show(string $id)
     {
-        $this->title= 'View';
-        $data['row']=$this->model->findOrFail($id);
-        return view($this->__loadDataToView($this->view . 'view'),compact('data'));
+        $this->title = 'View';
+        $url = env('API_URL') . '/services/';
+        $response = Http::get($url.$id);
+        //dd($response);
+        if ($response->successful()) {
+            $data['row'] = $response['data'];
+            return view($this->__loadDataToView($this->view . 'view'), compact('data'));
+        } else {
+            // handle error
+            abort(404);
+        }
     }
 
     /**
      * Show the form for editing the specified resource.
      */
     public function edit($id)
-    {   $this->title= 'Edit';
-        $data['row']=$this->model->findOrFail($id);
+    {
+        $this->title = 'View';
+        $url = env('API_URL') . '/services/';
+        $response = Http::get($url.$id. '/edit');
 
-
-        return view($this->__loadDataToView($this->view . 'edit'),compact('data'));
+        if ($response->successful()) {
+            $data['row'] = $response['data'];
+            return view($this->__loadDataToView($this->view . 'edit'), compact('data'));
+        } else {
+            // handle error
+            abort(404);
+        }
     }
 
     /**
@@ -87,12 +124,34 @@ class ServicesController extends BackendBaseController
      */
     public function update(Request $request, string $id)
     {
-        $data['row'] =$this->model->findOrFail($id);
-        if(!$data ['row']){
-            request()->session()->flash('error','Invalid Request');
-            return redirect()->route($this->__loadDataToView($this->route . 'index'));
-        }
-        if ($data['row']->update($request->all())) {
+        $client = new \GuzzleHttp\Client();
+        $imageFile = $request->file('image_file');
+
+        $url = env('API_URL') . '/services/';
+        $data['row'] = $client->request('Post', $url . $id . '/?_method=PUT' , [
+            'multipart' => [
+                [
+                    'name' => 'image_file',
+                    'contents' => fopen($imageFile->getRealPath(), 'r'),
+                    'filename' => $imageFile->getClientOriginalName(),
+                ],
+                [
+                    'name'     => 'title',
+                    'contents' => $request->input('title')
+                ],
+                [
+                    'name'     => 'excerpt',
+                    'contents' => $request->input('excerpt')
+
+                ],
+                [
+                    'name'     => 'description',
+                    'contents' => $request->input('description')
+                ]
+
+            ]
+        ]);
+        if ($data['row']) {
             $request->session()->flash('success', $this->panel .' Update Successfully');
         } else {
             $request->session()->flash('error', $this->panel .' Update failed');
@@ -109,7 +168,17 @@ class ServicesController extends BackendBaseController
     public function destroy($id)
     {
 
-        $this->model->findorfail($id)->delete();
-        return redirect()->route($this->__loadDataToView($this->route . 'index'))->with('success',$this->panel .' Deleted Successfully');
+        $client = new \GuzzleHttp\Client();
+        $url = env('API_URL') . '/services/';
+
+        $response = $client->request('DELETE', $url . $id);
+
+        if ($response->getStatusCode() == 200) {
+            return redirect()->route($this->__loadDataToView($this->route . 'index'))->with('success',$this->panel .' Deleted Successfully');
+
+        } else {
+            return redirect()->route($this->__loadDataToView($this->route . 'index'))->with('error',$this->panel .' Deleted Could noot be deleted');
+
+        }
     }
 }

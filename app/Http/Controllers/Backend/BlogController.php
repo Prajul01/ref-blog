@@ -7,6 +7,7 @@ use App\Models\Blog;
 use App\Models\Category;
 use App\Models\TeamMember;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 
 class BlogController extends BackendBaseController
 {
@@ -24,7 +25,9 @@ class BlogController extends BackendBaseController
     public function index()
     {
         $this->title = 'List';
-        $data['row'] = Blog::all();
+        $url = env('API_URL') . '/blog';
+
+        $data['row'] = Http::get($url)['data'];
         return view($this->__loadDataToView($this->view . 'index'),compact('data'));
     }
 
@@ -35,8 +38,6 @@ class BlogController extends BackendBaseController
     {
         $this->title = 'Create';
         $data['category']=Category::pluck('name','id');
-//        dd($data['category']);
-
         return view($this->__loadDataToView($this->view . 'create'),compact('data'));
     }
 
@@ -46,15 +47,35 @@ class BlogController extends BackendBaseController
     public function store(Request $request)
     {
 
-        $data['row'] = $request->all();
-        $file = $request->file('image_file');
-        if ($request->hasFile("image_file")) {
-            $fileName = time() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('uploads/images/blog/'), $fileName);
-            $request->request->add(['image' => $fileName]);
+        $client = new \GuzzleHttp\Client();
+        $url = env('API_URL') . '/blog';
+        $imageFile = $request->file('image_file');
+        $data['row'] = $client->request('POST', $url, [
+            'multipart' => [
+                [
+                    'name'     => 'title',
+                    'contents' => $request->input('title')
+                ],
+                [
+                    'name'     => 'excerpt',
+                    'contents' => $request->input('excerpt')
+                ],
+                [
+                    'name'     => 'description',
+                    'contents' => $request->input('description')
 
-        }
-        $data['row']=$this->model->create($request->all());
+                ],
+                [
+                    'name'     => 'category_id',
+                    'contents' => $request->input('category_id')
+                ],
+                [
+                    'name' => 'image_file',
+                    'contents' => fopen($imageFile->getRealPath(), 'r'),
+                    'filename' => $imageFile->getClientOriginalName(),
+                ]
+            ]
+        ]);
         if ($data['row']) {
             request()->session()->flash('success', $this->panel . 'Created Successfully');
         } else {
@@ -70,20 +91,36 @@ class BlogController extends BackendBaseController
      */
     public function show(string $id)
     {
-        $this->title= 'View';
-        $data['row']=$this->model->findOrFail($id);
-        return view($this->__loadDataToView($this->view . 'view'),compact('data'));
+        $this->title = 'View';
+        $url = env('API_URL') . '/blog/';
+        $response = Http::get($url.$id);
+        if ($response->successful()) {
+            $data['row'] = $response['data'];
+            return view($this->__loadDataToView($this->view . 'view'), compact('data'));
+        } else {
+            // handle error
+            abort(404);
+        }
     }
 
     /**
      * Show the form for editing the specified resource.
      */
     public function edit($id)
-    {   $this->title= 'Edit';
-        $data['row']=$this->model->findOrFail($id);
+    {
+        $this->title= 'Edit';
         $data['category']=Category::pluck('name','id');
-//        dd($data['row']);
-        return view($this->__loadDataToView($this->view . 'edit'),compact('data'));
+
+        $url = env('API_URL') . '/blog/';
+        $response = Http::get($url.$id. '/edit');
+
+        if ($response->successful()) {
+            $data['row'] = $response['data'];
+            return view($this->__loadDataToView($this->view . 'edit'), compact('data'));
+        } else {
+            // handle error
+            abort(404);
+        }
     }
 
     /**
@@ -91,31 +128,40 @@ class BlogController extends BackendBaseController
      */
     public function update(Request $request, string $id)
     {
-        $delete = Blog::where('id', $id)->pluck('image');
+        $client = new \GuzzleHttp\Client();
+        $url = env('API_URL') . '/blog/';
+        $imageFile = $request->file('image_file');
+        $data['row'] = $client->request('POST', $url. $id. '?_method=PUT' , [
 
-        unlink(public_path('uploads\images\blog/'.$delete[0]));
-        $data['row'] = $request->all();
-        $file = $request->file('image_file');
-        if ($request->hasFile("image_file")) {
-            $fileName = time() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('uploads/images/blog/'), $fileName);
-            $request->request->add(['image' => $fileName]);
+            'multipart' => [
+                [
+                    'name'     => 'title',
+                    'contents' => $request->input('title')
+                ],
+                [
+                    'name'     => 'excerpt',
+                    'contents' => $request->input('excerpt')
+                ],
+                [
+                    'name'     => 'description',
+                    'contents' => $request->input('description')
 
-        }
-//        dd($request->all());
-
-
-
-        $data['row'] =$this->model->findOrFail($id);
-        if(!$data ['row']){
-            request()->session()->flash('error','Invalid Request');
-            return redirect()->route($this->__loadDataToView($this->route . 'index'));
-        }
-        if ($data['row']->update($request->all())) {
-            $request->session()->flash('success', $this->panel .' Update Successfully');
+                ],
+                [
+                    'name'     => 'category_id',
+                    'contents' => $request->input('category_id')
+                ],
+                [
+                    'name' => 'image_file',
+                    'contents' => fopen($imageFile->getRealPath(), 'r'),
+                    'filename' => $imageFile->getClientOriginalName(),
+                ]
+            ]
+        ]);
+        if ($data['row']) {
+            request()->session()->flash('success', $this->panel . 'Created Successfully');
         } else {
-            $request->session()->flash('error', $this->panel .' Update failed');
-
+            request()->session()->flash('error', $this->panel . 'Creation Failed');
         }
         return redirect()->route($this->__loadDataToView($this->route . 'index'));
     }
@@ -125,11 +171,17 @@ class BlogController extends BackendBaseController
      */
     public function destroy(string $id)
     {
-        $delete = Blog::where('id', $id)->pluck('image');
+        $client = new \GuzzleHttp\Client();
+        $url = env('API_URL') . '/blog/';
 
-        unlink(public_path('uploads\images\blog/'.$delete[0]));
+        $response = $client->request('DELETE', $url . $id);
 
-        $this->model->findorfail($id)->delete();
-        return redirect()->route($this->__loadDataToView($this->route . 'index'))->with('success',$this->panel .' Deleted Successfully');
+        if ($response->getStatusCode() == 200) {
+            return redirect()->route($this->__loadDataToView($this->route . 'index'))->with('success',$this->panel .' Deleted Successfully');
+
+        } else {
+            return redirect()->route($this->__loadDataToView($this->route . 'index'))->with('error',$this->panel .' Deleted Could noot be deleted');
+
+        }
     }
 }

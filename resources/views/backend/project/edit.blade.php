@@ -93,44 +93,58 @@
                                 {{--                            <th>Action</th>--}}
                             </tr>
                             <tr>
-                                @foreach(json_decode($data['row']->links) as $link)
-                                    <td><input type="text" name="links[]" class="form-control" value="{{$link}}"></td>
+                                @foreach(json_decode($data['row']->links) as $test)
+                                    <td><input type="text" name="link"  value="{{ $test->link }}" class="form-control"/></td>
+                                    <td><input type="text" name="playstore" value="{{ $test->playstore }}" class="form-control"/></td>
+                                    <td><input type="text" name="appstore" value="{{ $test->appstore }}" class="form-control"/></td>
+
                                 @endforeach
+{{--                                    @foreach(json_decode($data['row']->links) as $test)--}}
+{{--                                        <td>--}}
+{{--                                            --}}{{--                                <p></p>--}}
+{{--                                            <p>URL: </p>--}}
+{{--                                            <p>Playstore: </p>--}}
+{{--                                            <p>AppStore: </p>--}}
+
+{{--                                        </td>--}}
+{{--                                    @endforeach--}}
                             </tr>
                         </table>
                     </div>
-                       <table class="table table-striped table-bordered" id="image_wrapper">
+{{--                       <table class="table table-striped table-bordered" id="image_wrapper">--}}
 
 {{--                                                    <h2>contributors</h2>--}}
-                            <tr>
-                                <th>Name</th>
-                                <th>Facebook</th>
-                                <th>Linkedin</th>
-                                <th>Action</th>
-                                {{--                            <th>Action</th>--}}
-                            </tr>
-                            <tr>
-                           @foreach(json_decode($data['row']->contributors) as $contributor)
-                               @for($i = 0; $i < count($contributor->name); $i++)
-                                   <tr>
-                                       <td><input type="text" name="contributor_name[]" class="form-control" value="{{$contributor->name[$i]}}"></td>
-                                       <td><input type="text" name="contributor_facebook[]" value="{{$contributor->facebook[$i]}}" class="form-control"/></td>
-                                       <td><input type="text" name="contributor_linkedin[]" value="{{$contributor->linkedin[$i]}}" class="form-control"/></td>
-                                       <td>
-                                           @if($i == 0)
-                                               <button class="btn btn-info" type="button" id="addMoreImage"style="margin-bottom: 20px"> <i class="fa fa-plus"></i> Add</button>
+{{--                            <tr>--}}
+{{--                                <th>Name</th>--}}
+{{--                                <th>Github</th>--}}
+{{--                                <th>Linkedin</th>--}}
+{{--                                <th>Role</th>--}}
+{{--                                <th>Action</th>--}}
+{{--                                --}}{{--                            <th>Action</th>--}}
+{{--                            </tr>--}}
+{{--                            <tr>--}}
+{{--                           @foreach(json_decode($data['row']->contributors) as $contributor)--}}
+{{--                               @for($i = 0; $i < count($contributor->name); $i++)--}}
+{{--                                   <tr>--}}
+{{--                                       <td><input type="text" name="contributor_name[]" class="form-control" value="{{$contributor->name[$i]}}"></td>--}}
+{{--                                       <td><input type="text" name="contributor_facebook[]" value="{{$contributor->github[$i]}}" class="form-control"/></td>--}}
+{{--                                       <td><input type="text" name="contributor_linkedin[]" value="{{$contributor->linkedin[$i]}}" class="form-control"/></td>--}}
+{{--                                       <td><input type="text" name="role[]" value="{{$contributor->role[$i]}}" class="form-control"/></td>--}}
+{{--                                       <td>--}}
+{{--                                           @if($i == 0)--}}
+{{--                                               <button class="btn btn-info" type="button" id="addMoreImage"style="margin-bottom: 20px"> <i class="fa fa-plus"></i> Add</button>--}}
 
-                                           @else
-                                               <a class="btn btn-block btn-warning sa-warning remove_row"> <i class="fa fa-trash"></i></a>
-                                           @endif
-                                       </td>
-                                   </tr>
-                                   @endfor
-                                   @endforeach
+{{--                                           @else--}}
+{{--                                               <a class="btn btn-block btn-warning sa-warning remove_row"> <i class="fa fa-trash"></i></a>--}}
+{{--                                           @endif--}}
+{{--                                       </td>--}}
+{{--                                   </tr>--}}
+{{--                                   @endfor--}}
+{{--                                   @endforeach--}}
 
 
-                            </tr>
-                        </table>
+{{--                            </tr>--}}
+{{--                        </table>--}}
                     </div>
                     <!-- /.card-body -->
 

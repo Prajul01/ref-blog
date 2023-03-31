@@ -39,15 +39,18 @@
 
                         <td> {{$i+1}}</td>
                         <td>{{$event['title']}}</td>
-                        <td>{{$event['icon']}}</td>
+                        <td>
+                                <?php
+                                $path = 'uploads/images/services/'; // Retrieve the path from the database
+                                $url = env('IMG_URL').$path ;
+//                                $url =env('API_URL') . '/client/'; . $path;
+                                ?>
+                            <img src="{{ $url.$event['icon'] }}" class="image2" alt=""
+                                 style="height: 100px; width: 100px; border: 15px solid white">
+
+                        </td>
                         <td>{{$event['excerpt']}}</td>
-
-{{--                        <td>--}}
-{{--                            <img src="{{asset('uploads/images/dailyspecial/'.$event->image)}}" class="image2" alt=""--}}
-{{--                                 style="height: 100px; width: 100px; border: 15px solid white">--}}
-
-{{--                        </td>--}}
-
+{{--                        <td>{!!  $event['description']!!}</td>--}}
                         <td>
                             <a href="{{route($route.'show',$event['id'])}}" class="btn btn-sm btn-primary">
                                 <i class="fa fa-eye"></i>

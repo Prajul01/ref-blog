@@ -17,9 +17,9 @@ return new class extends Migration
             $table->string('title');
             $table->string('description');
             $table->string('links')->nullable();
-            $table->string('contributors');
+
             $table->string('excerpt');
-            $table->string('thumbnail');
+//            $table->string('thumbnail');
 
             $table->timestamps();
         });

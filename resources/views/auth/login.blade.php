@@ -11,14 +11,6 @@
                 <div class="card-header">{{ __('Login') }}</div>
 
                 <div class="card-body">
-                    @section('error')
-                    @if (!Auth::check())
-
-                            <div class="alert alert-danger">{{ __('Please log in to continue.') }}</div>
-
-                    @endif
-                    @endsection
-
                     <form method="POST" action="{{ route('login') }}">
                         @csrf
 

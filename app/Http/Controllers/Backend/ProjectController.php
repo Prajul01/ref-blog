@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
+use App\Models\Contributor;
 use App\Models\Project;
+use App\Models\ProjectContributors;
 use App\Models\ProjectImage;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 
 class ProjectController extends BackendBaseController
 {
@@ -22,18 +25,13 @@ class ProjectController extends BackendBaseController
      */
     public function index()
     {
+
         $this->title = 'List';
-        $data['row'] = $this->model->all();
-        $projectImages = ProjectImage::where('project_id',  $data['row']->first()->id)->get();
+        $url = env('API_URL') . '/project/';
 
-//        foreach ($data['row'] as $cont) {
-//            $cont = unserialize($cont->contributors);
-//
-//        }
-//
-
-
-        return view($this->__loadDataToView($this->view . 'index'),compact('data','projectImages'));
+        $data['row'] = Http::get($url)['data'];
+        return  $data;
+        return view($this->__loadDataToView($this->view . 'index'),compact('data'));
     }
 
     /**
@@ -42,8 +40,11 @@ class ProjectController extends BackendBaseController
     public function create()
     {
         $this->title = 'Create';
+        $contributors=Contributor::all();
+//        dd($contributors);
 
-        return view($this->__loadDataToView($this->view . 'create'));
+
+        return view($this->__loadDataToView($this->view . 'create'),compact('contributors'));
     }
 
     /**
@@ -56,16 +57,6 @@ class ProjectController extends BackendBaseController
     $model->description = $request->input('description');
     $model->excerpt = $request->input('excerpt');
         $model->client = $request->input('client');
-//    $model->thumbnail = $request->input('thumbnail');
-        $contributors = [
-            [
-                'name' => $request->input('contributor_name'),
-                'github' => $request->input('contributor_github'),
-                'linkedin' => $request->input('contributor_linkedin')
-            ],
-        ];
-        $model->contributors = json_encode($contributors);
-    // To store array data in database, you can use the `serialize()` function to convert the array into a string
         $links=[
             [
                 'link'=>$request->input('link'),
@@ -76,16 +67,20 @@ class ProjectController extends BackendBaseController
         $model->links = json_encode($links);
         $file = $request->file('image_file');
     if ($request->hasFile('image_file')) {
-
         $fileName = time() . '_' . $file->getClientOriginalName();
-
         $file->move(public_path('uploads/images/project/'), $fileName);
-
          $request->request->add(['image' => $fileName]);
         $model->image = $fileName;
-
     }
     $model->save();
+    $cont['project_id']=$model->id;
+    $contributors = $request->input('contributors_id');
+    for($i=0;$i< count($contributors);$i++){
+        $contributors_id=$contributors[$i];
+        $cont['contributor_id']=$contributors_id;
+        ProjectContributors::create($cont);
+    }
+
         $imageArray['project_id'] = $model->id;
         $imageFiles = $request->file('img');
         for ($i = 0; $i < count($imageFiles); $i++) {
@@ -96,7 +91,7 @@ class ProjectController extends BackendBaseController
             ProjectImage::create($imageArray);
         }
 
-        return redirect()->route($this->__loadDataToView($this->route . 'ind'));
+        return redirect()->route($this->__loadDataToView($this->route . 'index'));
 
     }
     /**
@@ -106,6 +101,7 @@ class ProjectController extends BackendBaseController
     {
         $this->title= 'View';
         $data['row']=$this->model->findOrFail($id);
+//        dd($data['row']);
         return view($this->__loadDataToView($this->view . 'view'),compact('data'));
     }
 
@@ -135,7 +131,8 @@ class ProjectController extends BackendBaseController
             [
                 'name' => $request->input('contributor_name'),
                 'github' => $request->input('contributor_github'),
-                'linkedin' => $request->input('contributor_linkedin')
+                'linkedin' => $request->input('contributor_linkedin'),
+                'role' => $request->input('role')
             ],
         ];
         $model->contributors = json_encode($contributors);

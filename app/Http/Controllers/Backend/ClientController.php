@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ClientRequest;
 use App\Models\Client;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
+//use GuzzleHttp\Client;
 
 class ClientController extends BackendBaseController
 {
@@ -23,7 +25,9 @@ class ClientController extends BackendBaseController
     public function index()
     {
         $this->title = 'List';
-        $data['row'] = Client::all();
+        $url = env('API_URL') . '/client/';
+
+        $data['row'] = Http::get($url)['data'];
         return view($this->__loadDataToView($this->view . 'index'),compact('data'));
     }
 
@@ -40,80 +44,115 @@ class ClientController extends BackendBaseController
     /**
      * Store a newly created resource in storage.
      */
-    public function store(ClientRequest $request)
+    public function store(Request $request)
     {
-        $data['row'] = $request->all();
-        if ($data['row']){
-            $imageFiles = $request->file('image_file');
-        $attribute_value = $request->input('name');
-            for ($i = 0; $i < count($imageFiles); $i++){
-                $image      = $imageFiles[$i];
-                $image_name = rand(6785, 9814).'_'.$image->getClientOriginalName();
-                $image->move(public_path('uploads/images/clients/'), $image_name);
-                $imageArray['image'] = $image_name;
-                $imageArray['name'] = $attribute_value[$i];
-                 Client::create($imageArray);
-            }
-        if ($data['row']) {
+        $client = new \GuzzleHttp\Client();
+        $url = env('API_URL') . '/client';
+        $nameArray = $request->input('name'); // Retrieve the array of name inputs from the form
+        $imageFileArray = $request->file('image_file'); // Retrieve the array of image file inputs from the form
+
+        $multipart = [];
+
+        foreach ($nameArray as $index => $name) {
+            $multipart[] = [
+                'name' => 'name[]',
+                'contents' => $name,
+            ];
+
+            $multipart[] = [
+                'name' => 'image_file[]',
+                'contents' => fopen($imageFileArray[$index]->getRealPath(), 'r'),
+                'filename' => $imageFileArray[$index]->getClientOriginalName(),
+            ];
+        }
+
+        $response = $client->request('POST', $url, [
+        'multipart' => $multipart,
+    ]);
+        if ($response) {
             request()->session()->flash('success', $this->panel . 'Created Successfully');
         } else {
             request()->session()->flash('error', $this->panel . 'Creation Failed');
         }
         return redirect()->route($this->__loadDataToView($this->route . 'index'));
+    }
 
-    }
-    }
+
+
+
+
 
     /**
      * Display the specified resource.
      */
     public function show(string $id)
     {
-        $this->title= 'View';
-        $data['row']=$this->model->findOrFail($id);
-        return view($this->__loadDataToView($this->view . 'view'),compact('data'));
+
+        $this->title = 'View';
+        $url = env('API_URL') . '/client/';
+        $response = Http::get($url.$id);
+        //dd($response);
+        if ($response->successful()) {
+            $data['row'] = $response['data'];
+            return view($this->__loadDataToView($this->view . 'view'), compact('data'));
+        } else {
+            // handle error
+            abort(404);
+        }
     }
 
     /**
      * Show the form for editing the specified resource.
      */
     public function edit($id)
-    {   $this->title= 'Edit';
-        $data['row']=$this->model->findOrFail($id);
+    {
+        $this->title = 'View';
+        $url = env('API_URL') . '/client/';
+        $response = Http::get($url.$id. '/edit');
 
-
-        return view($this->__loadDataToView($this->view . 'edit'),compact('data'));
+        if ($response->successful()) {
+            $data['row'] = $response['data'];
+            return view($this->__loadDataToView($this->view . 'edit'), compact('data'));
+        } else {
+            // handle error
+            abort(404);
+        }
     }
 
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
-//        'uploads/images/clients/'.$event->image
+        $client = new \GuzzleHttp\Client();
+        $url = env('API_URL') . '/client/';
 
-        $delete = Client::where('id', $id)->pluck('image');
-        unlink(public_path('uploads\images\clients/'.$delete[0]));
-        $file = $request->file('image_file');
-        if ($request->hasFile("image_file")) {
-            $fileName = time() . '_' . $file->getClientOriginalName();
-            $file->move(public_path('uploads/images/clients/'), $fileName);
-            $request->request->add(['image' => $fileName]);
-        }
+        $name = $request->input('name');
+        $imageFile = $request->file('image_file');
 
+        $multipart = [
+            [
+                'name' => 'name',
+                'contents' => $name,
+            ],
+            [
+                'name' => 'image_file',
+                'contents' => fopen($imageFile->getRealPath(), 'r'),
+                'filename' => $imageFile->getClientOriginalName(),
+            ],
+        ];
 
-        $data['row'] =$this->model->findOrFail($id);
-        if(!$data ['row']){
-            request()->session()->flash('error','Invalid Request');
-            return redirect()->route($this->__loadDataToView($this->route . 'index'));
-        }
-        if ($data['row']->update($request->all())) {
-            $request->session()->flash('success', $this->panel .' Update Successfully');
+        $response = $client->request('Post', $url . $id . '?_method=PUT' , [
+            'multipart' => $multipart,
+        ]);
+
+        if ($response) {
+            request()->session()->flash('success', $this->panel . 'Updated Successfully');
         } else {
-            $request->session()->flash('error', $this->panel .' Update failed');
-
+            request()->session()->flash('error', $this->panel . 'Update Failed');
         }
+
         return redirect()->route($this->__loadDataToView($this->route . 'index'));
     }
 
@@ -122,11 +161,16 @@ class ClientController extends BackendBaseController
      */
     public function destroy($id)
     {
-        $delete = Client::where('id', $id)->pluck('image');
+        $client = new \GuzzleHttp\Client();
 
-        unlink(public_path('uploads\images\clients/'.$delete[0]));
+        $response = $client->request('DELETE', 'http://192.168.18.160:8000/api/client/' . $id);
 
-        $this->model->findorfail($id)->delete();
-        return redirect()->route($this->__loadDataToView($this->route . 'index'))->with('success',$this->panel .' Deleted Successfully');
+        if ($response->getStatusCode() == 200) {
+            return redirect()->route($this->__loadDataToView($this->route . 'index'))->with('success',$this->panel .' Deleted Successfully');
+
+        } else {
+            return redirect()->route($this->__loadDataToView($this->route . 'index'))->with('error',$this->panel .' Deleted Could noot be deleted');
+
+        }
     }
 }

@@ -64,6 +64,18 @@
                         </div>
 
                     </div>
+                    <div class="form-group row">
+                        <label for="contributors" class="col-sm-2 col-form-label"> Contributors</label>
+                        <div class="col-sm-10">
+
+                        <select name="contributors_id[]" class="form-control" multiple>
+                            @foreach ($contributors as $contributor)
+                                <option value="{{ $contributor->id }}">{{ $contributor->name }}</option>
+                            @endforeach
+                        </select>
+                        </div>
+
+                    </div>
                     <div  style="display: flex" >
                         <div><h2>Links</h2></div>
 <div class="col-sm-10" style="margin-left: 90px">
@@ -87,31 +99,6 @@
 
                     <div  style="display: flex" >
                     <div ><h2>Contributors</h2></div>
-                    <div class="col-sm-10"  >
-
-                    <table class="table table-striped table-bordered" id="image_wrapper">
-{{--                        <h2>contributors</h2>--}}
-                        <tr>
-                            <th>Name</th>
-                            <th>Github</th>
-                            <th>Linkedin</th>
-                            <th>Role</th>
-                            <th>Action</th>
-                            {{--                            <th>Action</th>--}}
-                        </tr>
-                        <tr>
-                            <td><input type="text" name="contributor_name[]" class="form-control"/></td>
-                            <td><input type="text" name="contributor_github[]" class="form-control"/></td>
-                            <td><input type="text" name="contributor_linkedin[]" class="form-control"/></td>
-                            <td><input type="text" name="role[]" class="form-control"/></td>
-                            <td>
-                                <button class="btn btn-info" type="button" id="addMoreImage"style="margin-bottom: 20px"> <i class="fa fa-plus"></i> Add</button>
-
-                            </td>
-
-                        </tr>
-                    </table>
-                    </div>
                     </div>
 
 

@@ -17,9 +17,13 @@ class HomeController extends BackendBaseController
      *
      * @return void
      */
+//    public function __construct()
+//    {
+//        $this->middleware('auth');
+//    }
     public function __construct()
     {
-        $this->middleware('auth');
+        $this->middleware('guest')->except('logout');
     }
 
     /**
@@ -30,7 +34,9 @@ class HomeController extends BackendBaseController
     public function index()
     {
         $this->title = 'Main Page';
+        $user = auth()->user();
+//        dd($user);
 
-        return view($this->__loadDataToView($this->view ));
+        return view($this->__loadDataToView($this->view ),compact('user'));
     }
 }

@@ -30,19 +30,19 @@
 
                     <tr>
                         <th>Name</th>
-                        <td>{{$data['row']->fname}} {{$data['row']->lname}}</td>
+                        <td>{{$data['row']['fname']}} {{$data['row']['lname']}}</td>
                     </tr>
                     <tr>
                         <th>Email</th>
-                        <td>{{$data['row']->email}} </td>
+                        <td>{{$data['row']['email']}} </td>
                     </tr>
                     <tr>
                         <th>Phone</th>
-                        <td>{{$data['row']->phone}} </td>
+                        <td>{{$data['row']['phone']}} </td>
                     </tr>
                     <tr>
                         <th>Message</th>
-                        <td>{{$data['row']->message}} </td>
+                        <td>{{$data['row']['message']}} </td>
                     </tr>
 
                 </table>

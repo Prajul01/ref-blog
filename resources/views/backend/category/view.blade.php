@@ -1,4 +1,4 @@
-@extends('backend.layout.backend')
+@extends('backend.layout.app')
 
 @section('csss')
     <style>
@@ -30,12 +30,12 @@
 
                     <tr>
                         <th>Name</th>
-                        <td>{{$data['row']->name}}</td>
+                        <td>{{$data['row']['name']}}</td>
                     </tr>
-                    <tr>
-                        <th>Icon</th>
-                        <td>{!! $data['row']->icon  !!} </td>
-                    </tr>
+{{--                    <tr>--}}
+{{--                        <th>Icon</th>--}}
+{{--                        <td>{!! $data['row']['icon']!!} </td>--}}
+{{--                    </tr>--}}
 
                 </table>
 

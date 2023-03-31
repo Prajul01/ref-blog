@@ -43,7 +43,7 @@
                         <td>{{$event['lname']}}</td>
                         <td>{{$event['email']}}</td>
                         <td>{{$event['comments']}}</td>
-                        <td>{{$event->blog->title}}</td>
+                        <td>{{$event['blog']['title']}}</td>
 
 
 

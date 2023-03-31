@@ -44,21 +44,29 @@
                         <td>{{$event['name']}}</td>
 
                         <td>
-                            <img src="{{asset('uploads/images/clients/'.$event->image)}}" class="image2" alt=""
-                                 style="height: 100px; width: 100px; border: 15px solid white">
+                            <?php
+                                $path = 'uploads/images/clients/'; // Retrieve the path from the database
+                                $url = env('IMG_URL').$path ;
+//                                $url =env('API_URL') . '/client/'; . $path;
+                                ?>
+                                <img src="{{ $url.$event['image'] }}" class="image2" alt=""
+                                     style="height: 100px; width: 100px; border: 15px solid white">
 
                         </td>
 
                         <td>
                             <a href="{{route($route.'show',$event['id'])}}" class="btn btn-sm btn-primary">
-                                <i class="fa fa-eye"></i>
+                                <i class="fa fa-eye"></i>View
 
                             </a>
-                            <a href="{{route($route.'edit',$event['id'])}}" class="btn btn-sm btn-warning"> <i class="fa fa-pencil-alt"></i></a>
+{{--                            <a href="{{ route($route.'show', ['client' => $event['id']]) }}" class="btn btn-sm btn-primary">--}}
+{{--                                <i class="fa fa-eye"></i> View--}}
+{{--                            </a>--}}
+                            <a href="{{route($route.'edit',$event['id'])}}" class="btn btn-sm btn-warning"> <i class="fa fa-pencil-alt"></i>Edit</a>
                             <form class="d-inline" action="{{route($route.'destroy',$event['id'])}}" method="post">
                                 <input type="hidden" name="_method" value="delete"/>
                                 @csrf
-                                <button type="submit" class="btn btn-sm btn-danger "><i class="fa fa-trash"></i></button>
+                                <button type="submit" class="btn btn-sm btn-danger "><i class="fa fa-trash"></i>Delete</button>
 
                             </form>
 

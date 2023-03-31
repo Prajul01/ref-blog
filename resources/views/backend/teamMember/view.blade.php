@@ -30,23 +30,29 @@
 
                     <tr>
                         <th>Name</th>
-                        <td>{{$data['row']->name}}</td>
+                        <td>{{$data['row']['name']}}</td>
                     </tr>
                     <tr>
                         <th>Designation</th>
-                        <td>{{$data['row']->designation}}</td>
+                        <td>{{$data['row']['designation']}}</td>
                     </tr>
                     <tr>
                         <th>Github</th>
-                        <td>{{$data['row']->github}}</td>
+                        <td>{{$data['row']['github']}}</td>
                     </tr>
                     <tr>
                         <th>Linkedin</th>
-                        <td>{{$data['row']->linkedin}}</td>
+                        <td>{{$data['row']['linkedin']}}</td>
                     </tr>
                     <tr>
                         <th>Image</th>
-                        <td><img src="{{asset('uploads/images/team/'.$data['row']->image)}}" class="image2" alt=""
+                        <td>
+                            <?php
+                            $path = 'uploads/images/team/'; // Retrieve the path from the database
+
+                            $url = 'http://192.168.254.233:8000/' . $path;
+                            ?>
+                            <img src="{{ $url.$data['row']['image'] }}" class="image2" alt=""
                                  style="height: 400px; width: 400px; border: 15px solid white">
                         </td>
                     </tr>
@@ -58,11 +64,4 @@
         <!-- /.card -->
     </div>
 @endsection
-@section('jss')
-    <script type="text/javascript">
-        $(document).ready(function () {
-            $('.ckeditor').ckeditor();
-        });
-    </script>
-    <script src="//cdn.ckeditor.com/4.14.0/standard/ckeditor.js"></script>
-@endsection
+

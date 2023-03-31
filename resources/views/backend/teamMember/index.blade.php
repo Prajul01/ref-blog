@@ -50,10 +50,17 @@
                         <td>{{$event['linkedin']}}</td>
 
                         <td>
-                            <img src="{{asset('uploads/images/team/'.$event->image)}}" class="image2" alt=""
+                                <?php
+                                $path = 'uploads/images/team/'; // Retrieve the path from the database
+
+                                $url = 'http://192.168.254.233:8000/' . $path;
+                                ?>
+                            <img src="{{ $url.$event['image'] }}" class="image2" alt=""
                                  style="height: 100px; width: 100px; border: 15px solid white">
 
                         </td>
+
+
 
                         <td>
                             <a href="{{route($route.'show',$event['id'])}}" class="btn btn-sm btn-primary">

@@ -46,7 +46,8 @@
                         <td>{{$event['email']}}</td>
                         <td>{{$event['phone']}}</td>
                         <td>{{$event['companyName']}}</td>
-                        <td>{{$event['message']}}</td>
+                        <td>{{substr($event['message'], 0, 50)}}....</td>
+
 
 
 {{--                        <td>--}}

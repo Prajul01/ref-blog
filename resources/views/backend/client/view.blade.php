@@ -30,12 +30,19 @@
 
                     <tr>
                         <th>Name</th>
-                        <td>{{$data['row']->name}}</td>
+                        <td>{{ $data['row']['name'] }}</td>
                     </tr>
                     <tr>
-                        <th>Icon</th>
-                        <td><img src="{{asset('uploads/images/clients/'.$data['row']->image)}}" class="image2" alt=""
-                                 style="height: 400px; width: 400px; border: 15px solid white">
+                        <th>Image</th>
+                        <td>
+                            <?php
+                            $path = 'uploads/images/clients/'; // Retrieve the path from the database
+                            $url = env('IMG_URL').$path ;
+//                                $url =env('API_URL') . '/client/'; . $path;
+                            ?>
+                            <img src="{{ $url.$data['row']['image'] }}" class="image2" alt=""
+                                 style="height: 100px; width: 100px; border: 15px solid white">
+
                         </td>
                     </tr>
 

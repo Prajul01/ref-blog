@@ -37,7 +37,7 @@
             </div>
             <button class="button" onclick="history.back(-1)">Go-Back</button>
             <div class="card-body">
-                {!! Form::model($data['row'], ['route' => [$route.'update', $data['row']->id ],'enctype'=>'multipart/form-data']) !!}
+                {!! Form::model($data['row'], ['route' => [$route.'update', $data['row']['id'] ],'enctype'=>'multipart/form-data']) !!}
                 {!! Form::hidden('_method', 'PUT') !!}
                 @csrf
 {{--                <form method="post" action="{{route($route.'update',$data['row']->id)}}" enctype="multipart/form-data">--}}

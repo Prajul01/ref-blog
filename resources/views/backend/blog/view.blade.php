@@ -30,26 +30,26 @@
 
                     <tr>
                         <th>Title</th>
-                        <td>{{$data['row']->title}}</td>
+                        <td>{{$data['row']['title']}}</td>
                     </tr>
                     <tr>
                         <th>Description</th>
-                        <td>{!!$data['row']->description !!}</td>
+                        <td>{!!$data['row']['description'] !!}</td>
                     </tr>
                     <tr>
                         <th>Excerpt</th>
-                        <td>{{$data['row']->excerpt}}</td>
+                        <td>{{$data['row']['excerpt']}}</td>
                     </tr>
                     <tr>
                         <th>Category</th>
-                        <td>{{$data['row']->category_id}}</td>
+                        <td>{{$data['row']['category']['name']}}</td>
                     </tr>
-                    <tr>
-                        <th>Image</th>
-                        <td><img src="{{asset('uploads/images/blog/'.$data['row']->image)}}" class="image2" alt=""
-                                 style="height: 200px; width: 200px; border: 15px solid white">
-                        </td>
-                    </tr>
+{{--                    <tr>--}}
+{{--                        <th>Image</th>--}}
+{{--                        <td><img src="{{asset('uploads/images/blog/'.$data['row']->image)}}" class="image2" alt=""--}}
+{{--                                 style="height: 200px; width: 200px; border: 15px solid white">--}}
+{{--                        </td>--}}
+{{--                    </tr>--}}
 
                 </table>
 

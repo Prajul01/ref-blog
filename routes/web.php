@@ -11,11 +11,12 @@ use App\Http\Controllers\Backend\ContactUsController;
 use App\Http\Controllers\Backend\VirtualEmployeeController;
 use App\Http\Controllers\Backend\OutsourcingController;
 use App\Http\Controllers\Backend\CommentController;
+use App\Http\Controllers\Backend\ContributorsController;
 
 Route::get('/', function () {
     return view('welcome');
 });
-Auth::routes();
+
 Route::group(['prefix' => '/admin', 'as' => 'admin.'], function () {
     Route::get('home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
     Route::resource('blog',BlogController::class);
@@ -28,4 +29,8 @@ Route::group(['prefix' => '/admin', 'as' => 'admin.'], function () {
     Route::resource('virtual',VirtualEmployeeController::class);
     Route::resource('outsourcing',OutsourcingController::class);
     Route::resource('comment',CommentController::class);
+    Route::resource('contributors',ContributorsController::class);
 });
+//Route::post('login', [App\Http\Controllers\HomeController::class, 'login'])->name('login.home');
+
+Auth::routes();

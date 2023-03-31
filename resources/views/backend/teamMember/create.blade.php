@@ -10,7 +10,7 @@
             <!-- /.card-header -->
             <!-- form start -->
             <div class="card-body">
-                <form method="post" action="{{route($route.'store')}}" enctype="multipart/form-data">
+                <form method="POST" action="{{route($route.'store')}}" enctype="multipart/form-data">
                     @csrf
                     <div class="form-group row">
                         {!! Form::label('name', 'Name: <span class="required">*</span>',['class' => 'col-sm-2 col-form-label'],false); !!}

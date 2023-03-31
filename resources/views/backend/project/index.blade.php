@@ -52,29 +52,33 @@
                         <td>{{$event['title']}}</td>
                         <td>{!! $event['description'] !!}</td>
                         <td>{{$event['excerpt']}}</td>
-                        @foreach(json_decode($event['contributors']) as $contributors)
-                            <td>
-                                @for ($i = 0; $i < count($contributors->name); $i++)
-                                    <p>Name: {{ $contributors->name[$i] }}</p>
-                                    <p>Github: {{ $contributors->github[$i] }}</p>
-                                    <p>LinkedIn: {{ $contributors->linkedin[$i] }}</p>
-                                    <hr>
-                                @endfor
-
-                            </td>
-                        @endforeach
-
-
-
-
-                            @foreach(json_decode($event->links) as $link)
-                                <li><a href="{{ $link }}" target="_blank">{{ $link }}</a></li>
+                        <td> @foreach($event['contributors'] as $contributor)
+                                <li>{{ $contributor['name'] }}</li>
                             @endforeach
+                        </td>
+
                         <td>
-                            <img src="{{asset('uploads/images/project/'.$event->image)}}" class="image2" alt=""
+                            <ul>
+                            @foreach(json_decode($event['links'], true) as $link)
+                                <li><a href="{{ $link['link'] }}">Link</a></li>
+                                <li>Playstore: {{ $link['playstore'] }}</li>
+                                <li>Appstore: {{ $link['appstore'] }}</li>
+                            @endforeach
+                            </ul>
+                        </td>
+
+                        <td>
+                                <?php
+                                $path = 'uploads/images/project/'; // Retrieve the path from the database
+                                $url = env('IMG_URL').$path ;
+                                ?>
+                            <img src="{{ $url.$event['image'] }}" class="image2" alt=""
                                  style="height: 100px; width: 100px; border: 15px solid white">
 
                         </td>
+
+
+
 
                         <td>
                             <a href="{{route($route.'show',$event['id'])}}" class="btn btn-sm btn-primary">
